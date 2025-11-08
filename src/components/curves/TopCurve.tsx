@@ -51,7 +51,8 @@ export const TopCurve: React.FC<Props> = ({ width, height, delay = 300, duration
         <LinearGradient id="topCurveGradient" x1={3} y1={104.5} x2={359.331} y2={15.3127} gradientUnits="userSpaceOnUse">
           <Stop offset="0" stopColor="#000000" stopOpacity={0} />
           <Stop offset="0.45" stopColor="#1AEE0E" stopOpacity={1} />
-          <Stop offset="0.84" stopColor="#1AEE0E" stopOpacity={0.5} />
+          <Stop offset="0.74" stopColor="#1AEE0E" stopOpacity={0.8} />
+        <Stop offset="0.88" stopColor="#60b430ff" stopOpacity={0.5} />
           <Stop offset="1" stopColor="#000000" stopOpacity={0} />
         </LinearGradient>
       </Defs>
