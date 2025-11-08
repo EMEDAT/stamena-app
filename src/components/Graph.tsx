@@ -30,22 +30,21 @@ export const Graph: React.FC = () => {
   const topCurveProgress = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    Animated.sequence([
+    Animated.parallel([
       Animated.timing(fade, { toValue: 1, duration: 450, delay: 250, useNativeDriver: true }),
       Animated.spring(labelY, { toValue: 0, useNativeDriver: true }),
-      // Start curve-related animations together so the glow leads the stroke
-      Animated.parallel([
-        Animated.timing(baselineDraw, { toValue: 1, duration: 700, useNativeDriver: false }),
-        Animated.timing(bgGlowOpacity, { toValue: 1, duration: 1200, useNativeDriver: true }),
-        Animated.timing(dotAppear, { toValue: 1, duration: 250, useNativeDriver: false }), // show dot immediately
-        Animated.timing(topCurveProgress, { toValue: 1, duration: 1500, useNativeDriver: false }),
-      ]),
+      Animated.timing(baselineDraw, { toValue: 1, duration: 700, useNativeDriver: false }),
+      Animated.timing(bgGlowOpacity, { toValue: 1, duration: 1200, useNativeDriver: true }),
+      Animated.timing(dotAppear, { toValue: 1, duration: 0, useNativeDriver: false }),          // dot appears immediately
+      Animated.timing(topCurveProgress, { toValue: 1, duration: 1500, useNativeDriver: false }), // top curve stroke
+    ]).start(() => {
+      // Arrow & multiplier after curves start
       Animated.parallel([
         Animated.spring(arrowY, { toValue: 0, useNativeDriver: true }),
         Animated.timing(arrowOpacity, { toValue: 1, duration: 400, useNativeDriver: true }),
         Animated.timing(multiplierOpacity, { toValue: 1, duration: 400, useNativeDriver: true }),
-      ]),
-    ]).start();
+      ]).start();
+    });
 
     // Dot pulse
     Animated.loop(
@@ -115,25 +114,28 @@ export const Graph: React.FC = () => {
   const botLeft = nowDotX - botScaleX * BOT_VB.startX - CURVE_BACK_OFFSET;
   const botTop  = nowDotY - botScaleY * BOT_VB.startY;
 
-  // Use the same steeper curve as TopCurve for dot following
-  const topCurvePathD = 'M6 112 C30 112 66 101 110 78 C190 40 260 14 346 6';
-
-  // Cubic Bezier evaluator
+  // Use the exact path structure of TopCurve for the moving dot:
+  // M6 112 H35.029 C49.724 112 64.544 110.342 78.179 104.86 C159.137 72.31 169.648 6 346 6
+  // Combine H + first C into a single cubic, then the second C as-is.
   const cubic = (p0: number, p1: number, p2: number, p3: number, t: number) =>
     (1 - t) ** 3 * p0 +
     3 * (1 - t) ** 2 * t * p1 +
     3 * (1 - t) * t ** 2 * p2 +
     t ** 3 * p3;
 
-  // Segments (original viewBox coords), destructured to satisfy TS
   const segs = [
-    { x: [6, 20, 66, 110] as [number, number, number, number], y: [112, 112, 101, 78] as [number, number, number, number] },
-    { x: [110, 190, 260, 346] as [number, number, number, number], y: [78, 40, 14, 6] as [number, number, number, number] },
+    // First cubic: from (6,112) -> (78.179,104.86)
+    { x: [6, 35.029, 49.724, 78.179] as [number, number, number, number],
+      y: [112, 112, 110.342, 104.86] as [number, number, number, number] },
+    // Second cubic: from (78.179,104.86) -> (346,6)
+    { x: [78.179, 159.137, 169.648, 346] as [number, number, number, number],
+      y: [104.86, 72.31, 6, 6] as [number, number, number, number] },
   ];
 
   const samples = 40;
   const tArray = Array.from({ length: samples }, (_, i) => i / (samples - 1));
-  const len1 = 120, len2 = 250, totalLen = len1 + len2;
+  // Approximate segment weights so timing feels even
+  const len1 = 140, len2 = 260, totalLen = len1 + len2;
   const split = len1 / totalLen;
 
   const pts = tArray.map((T) => {
@@ -151,20 +153,29 @@ export const Graph: React.FC = () => {
   });
 
   const dotXArray = pts.map(p => topLeft + p.x * topScaleX);
-  const dotYArray = pts.map(p => topTop + p.y); // includes raiseOffset
+  const dotYArray = pts.map(p => topTop + p.y);
+
+  // Keep the blinking dot slightly ahead of the curve head
+  const DOT_LEAD = 0.06;
+  const dotLeadProgress = topCurveProgress.interpolate({
+    inputRange: [0, 1],
+    outputRange: [DOT_LEAD, 1],
+  });
+
+  const movingCx = dotLeadProgress.interpolate({
+    inputRange: tArray,
+    outputRange: dotXArray.map(x => x + CURVE_BACK_OFFSET), // align to visible starting dot
+    extrapolate: 'clamp',
+  });
+  const movingCy = dotLeadProgress.interpolate({
+    inputRange: tArray,
+    outputRange: dotYArray,
+    extrapolate: 'clamp',
+  });
 
   const glowRadius = glowPulse.interpolate({
     inputRange: [0, 1],
-    outputRange: [12, 18], // reduced glow radius
-  });
-
-  const movingCx = topCurveProgress.interpolate({
-    inputRange: tArray,
-    outputRange: dotXArray,
-  });
-  const movingCy = topCurveProgress.interpolate({
-    inputRange: tArray,
-    outputRange: dotYArray,
+    outputRange: [12, 18],
   });
 
   return (
@@ -234,10 +245,10 @@ export const Graph: React.FC = () => {
         {/* Curves */}
         <View pointerEvents="none" style={StyleSheet.absoluteFill}>
           <View style={{ position: 'absolute', left: topLeft, top: topTop, width: topW, height: topH + 18, overflow: 'visible' }}>
-            <TopCurve width={topW} height={topH} />
+            <TopCurve width={topW} height={topH} progress={topCurveProgress} delay={0} />
           </View>
           <View style={{ position: 'absolute', left: botLeft, top: botTop, width: botW, height: botH }}>
-            <BottomCurve width={botW} height={botH} />
+            <BottomCurve width={botW} height={botH} delay={0} duration={1550} />
           </View>
         </View>
 
