@@ -18,6 +18,8 @@ interface Props {
   dotPulse?: Animated.Value;
   // Optional opacity driver for the dot
   dotOpacity?: Animated.Value;
+  dotProgress?: Animated.Value | Animated.AnimatedInterpolation<number>;
+  dotXOffset?: number; // pixel shift to align start when curve is shifted left
 }
 
 export const TopCurve: React.FC<Props> = ({
@@ -29,6 +31,8 @@ export const TopCurve: React.FC<Props> = ({
   lead = 0.06,
   dotPulse,
   dotOpacity,
+  dotProgress,
+  dotXOffset = 0,
 }) => {
   const internal = useRef(new Animated.Value(0)).current;
 
@@ -50,13 +54,35 @@ export const TopCurve: React.FC<Props> = ({
   const scaleX = width / vbW;
   const scaleY = height / vbH;
 
-  const driver = (progress ?? internal) as Animated.Value;
+  const strokeDriver = (progress ?? internal) as Animated.Value;
+  const pathTravelFactor = 0.93; // dot stops at 93% of path
+
+  // Base driver for dot (external override wins). Clamp to finish early so stroke can keep flowing.
+  const dotBase = (dotProgress ?? strokeDriver) as Animated.Value;
+  const aheadDriver = dotBase.interpolate({
+    inputRange: [0, 0.85, 1],
+    outputRange: [0, 1, 1],
+    extrapolate: 'clamp',
+  });
+
+  const leadOffset = dotBase.interpolate({
+    inputRange: [0, 0.05, 1],
+    outputRange: [0, lead, lead],
+    extrapolate: 'clamp',
+  });
+
+  const rawDotDriver = Animated.add(aheadDriver, leadOffset);
+
+  const dotDriver = rawDotDriver.interpolate({
+    inputRange: [0, 1 + lead],
+    outputRange: [0, pathTravelFactor],
+    extrapolate: 'clamp',
+  });
 
   // Longer dash so the stroke travels fully to the end
-  const baseLength = 1400;
+  const baseLength = 1800;
   const dashLength = baseLength * ((width / vbW + height / vbH) / 2);
-
-  const dashOffset = driver.interpolate({
+  const dashOffset = strokeDriver.interpolate({
     inputRange: [0, 1],
     outputRange: [dashLength, 0],
   });
@@ -107,27 +133,34 @@ export const TopCurve: React.FC<Props> = ({
   const xArray = useMemo(() => pts.map((p) => p.x), [pts]);
   const yArray = useMemo(() => pts.map((p) => p.y), [pts]);
 
-  // Dot progress (lead ahead slightly)
-  const dotLeadProgress = driver.interpolate({
-    inputRange: [0, 1],
-    outputRange: [lead, 1],
-  });
-
-  const movingCx = dotLeadProgress.interpolate({
+  const movingCx = dotDriver.interpolate({
     inputRange: tArray,
     outputRange: xArray,
     extrapolate: 'clamp',
   });
-  const movingCy = dotLeadProgress.interpolate({
+  const movingCy = dotDriver.interpolate({
     inputRange: tArray,
     outputRange: yArray,
     extrapolate: 'clamp',
   });
 
+  // Convert path (viewBox) coords to pixel coords for the dot (drawn outside scale)
+  const xArrayPx = useMemo(() => xArray.map((x) => x * scaleX + dotXOffset), [xArray, scaleX, dotXOffset]);
+  const yArrayPx = useMemo(() => yArray.map((y) => y + strokeW / 2), [yArray, strokeW]);
+  const movingCxPx = dotDriver.interpolate({ inputRange: tArray, outputRange: xArrayPx, extrapolate: 'clamp' });
+  const movingCyPx = dotDriver.interpolate({ inputRange: tArray, outputRange: yArrayPx, extrapolate: 'clamp' });
+
   return (
     <Svg width={width} height={height + strokeW} style={{ overflow: 'visible' }}>
       <Defs>
-        <LinearGradient id="topCurveGradient" x1={3} y1={104.5} x2={359.331} y2={15.3127} gradientUnits="userSpaceOnUse">
+        <LinearGradient
+          id="topCurveGradient"
+          x1={3}
+          y1={104.5}
+          x2={359.331}
+          y2={15.3127}
+          gradientUnits="userSpaceOnUse"
+        >
           <Stop offset="0" stopColor="#000000" stopOpacity={0} />
           <Stop offset="0.45" stopColor="#1AEE0E" stopOpacity={1} />
           <Stop offset="0.74" stopColor="#1AEE0E" stopOpacity={0.85} />
@@ -140,8 +173,8 @@ export const TopCurve: React.FC<Props> = ({
         </RadialGradient>
       </Defs>
 
+      {/* Scaled path group */}
       <G transform={`translate(0,${strokeW / 2}) scale(${scaleX} ${scaleY})`}>
-        {/* Stroke reveal */}
         <AnimatedPath
           d={pathD}
           stroke="url(#topCurveGradient)"
@@ -151,18 +184,12 @@ export const TopCurve: React.FC<Props> = ({
           strokeDasharray={dashLength}
           strokeDashoffset={dashOffset}
         />
+      </G>
 
-        {/* Blinking dot that follows the curve exactly (same coordinate space) */}
-        <G>
-          <AnimatedCircle cx={movingCx} cy={movingCy} r={14} fill="url(#dotGlowTop)" opacity={dotOpacity ?? 1} />
-          <AnimatedCircle
-            cx={movingCx}
-            cy={movingCy}
-            r={(dotPulse ?? new Animated.Value(1)).interpolate({ inputRange: [1, 1.15], outputRange: [6, 7.5] })}
-            fill="#FFFFFF"
-            opacity={dotOpacity ?? 1}
-          />
-        </G>
+      {/* Dot over the stroke in pixel space */}
+      <G>
+  <AnimatedCircle cx={movingCxPx} cy={movingCyPx} r={20} fill="url(#dotGlowTop)" opacity={1} />
+        <AnimatedCircle cx={movingCxPx} cy={movingCyPx} r={11} fill="#FFFFFF" opacity={dotOpacity ?? 1} />
       </G>
     </Svg>
   );

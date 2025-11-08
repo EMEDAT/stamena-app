@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, Animated, Dimensions, Image } from 'react-native';
+import { View, Text, StyleSheet, Animated, Dimensions, Image, Easing } from 'react-native';
 import Svg, { Path, Circle, Defs, LinearGradient, Stop, G, RadialGradient } from 'react-native-svg';
 import { COLORS } from '../constants/colors';
 const bgGlow = require('../../assets/backgroundGradient.png');
@@ -28,15 +28,29 @@ export const Graph: React.FC = () => {
   const multiplierOpacity = useRef(new Animated.Value(0)).current;
   const bgGlowOpacity = useRef(new Animated.Value(0)).current;
   const topCurveProgress = useRef(new Animated.Value(0)).current;
+  const dotProgress = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
+    topCurveProgress.setValue(0);
+    dotProgress.setValue(0);
     Animated.parallel([
       Animated.timing(fade, { toValue: 1, duration: 450, delay: 250, useNativeDriver: true }),
       Animated.spring(labelY, { toValue: 0, useNativeDriver: true }),
       Animated.timing(baselineDraw, { toValue: 1, duration: 700, useNativeDriver: false }),
       Animated.timing(bgGlowOpacity, { toValue: 1, duration: 1200, useNativeDriver: true }),
       Animated.timing(dotAppear, { toValue: 1, duration: 0, useNativeDriver: false }),          // dot appears immediately
-      Animated.timing(topCurveProgress, { toValue: 1, duration: 2200, useNativeDriver: false }), // top curve stroke
+      Animated.timing(topCurveProgress, {
+        toValue: 1,
+        duration: 6860,
+        easing: Easing.linear,
+        useNativeDriver: false,
+      }), // top curve stroke (slower so dot leads)
+      Animated.timing(dotProgress, {
+        toValue: 1,
+        duration: 1420,
+        easing: Easing.linear,
+        useNativeDriver: false,
+      }), // faster dot travel
     ]).start(() => {
       // Arrow & multiplier after curves start
       Animated.parallel([
@@ -45,14 +59,6 @@ export const Graph: React.FC = () => {
         Animated.timing(multiplierOpacity, { toValue: 1, duration: 400, useNativeDriver: true }),
       ]).start();
     });
-
-    // Dot pulse
-    Animated.loop(
-      Animated.sequence([
-        Animated.timing(dotPulse, { toValue: 1.15, duration: 900, useNativeDriver: false }),
-        Animated.timing(dotPulse, { toValue: 1, duration: 900, useNativeDriver: false }),
-      ])
-    ).start();
 
     // Glow breathing
     Animated.loop(
@@ -239,8 +245,9 @@ export const Graph: React.FC = () => {
               height={topH}
               progress={topCurveProgress}
               lead={0.06}
-              dotPulse={dotPulse}
-              dotOpacity={dotAppear}
+              // Keep dot size constant; blink via opacity
+              dotOpacity={dotPulse}
+              dotProgress={dotProgress}
               delay={0}
             />
           </View>
