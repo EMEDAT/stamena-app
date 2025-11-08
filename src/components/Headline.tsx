@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Text, StyleSheet } from 'react-native';
+import { Text, StyleSheet, View } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -12,8 +12,10 @@ import { COLORS } from '../constants/colors';
 export const Headline: React.FC = () => {
   const opacity1 = useSharedValue(0);
   const opacity2 = useSharedValue(0);
+  const opacity3 = useSharedValue(0);
   const translateY1 = useSharedValue(20);
   const translateY2 = useSharedValue(20);
+  const translateY3 = useSharedValue(20);
 
   useEffect(() => {
     // First part of text
@@ -35,43 +37,57 @@ export const Headline: React.FC = () => {
       800,
       withTiming(0, { duration: 600, easing: Easing.out(Easing.cubic) })
     );
+
+    // Third part (highlight)
+    opacity3.value = withDelay(
+      1100,
+      withTiming(1, { duration: 600, easing: Easing.out(Easing.cubic) })
+    );
+    translateY3.value = withDelay(
+      1100,
+      withTiming(0, { duration: 600, easing: Easing.out(Easing.cubic) })
+    );
   }, []);
 
-  const firstPartStyle = useAnimatedStyle(() => {
-    return {
-      opacity: opacity1.value,
-      transform: [{ translateY: translateY1.value }],
-    };
-  });
-
-  const highlightStyle = useAnimatedStyle(() => {
-    return {
-      opacity: opacity2.value,
-      transform: [{ translateY: translateY2.value }],
-    };
-  });
+  const line1Style = useAnimatedStyle(() => ({
+    opacity: opacity1.value,
+    transform: [{ translateY: translateY1.value }],
+  }));
+  const line2Style = useAnimatedStyle(() => ({
+    opacity: opacity2.value,
+    transform: [{ translateY: translateY2.value }],
+  }));
+  const line3Style = useAnimatedStyle(() => ({
+    opacity: opacity3.value,
+    transform: [{ translateY: translateY3.value }],
+  }));
 
   return (
-    <Animated.Text style={styles.headline}>
-      <Animated.Text style={firstPartStyle}>
-        Kegel exercises strengthen PF muscles, which significantly increases{' '}
+    <View style={styles.headlineGroup}>
+      <Animated.Text style={[styles.headline, line1Style]}>
+        Kegel exercises strengthen PF muscles,
       </Animated.Text>
-      <Animated.Text style={[styles.highlight, highlightStyle]}>
+      <Animated.Text style={[styles.headline, line2Style]}>
+        which significantly increases
+      </Animated.Text>
+      <Animated.Text style={[styles.headline, styles.highlight, line3Style]}>
         ejaculation control.
       </Animated.Text>
-    </Animated.Text>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
+  headlineGroup: {
+    marginBottom: 24,
+  },
   headline: {
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: '600',
     lineHeight: 24,
     color: COLORS.white,
     textAlign: 'center',
     letterSpacing: -0.31,
-    marginBottom: 24,
   },
   highlight: {
     color: COLORS.accentGreen,
