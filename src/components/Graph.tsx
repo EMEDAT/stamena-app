@@ -1,262 +1,324 @@
 import React, { useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, Animated, Dimensions } from 'react-native';
-import Svg, { Path, Circle, Defs, LinearGradient, Stop, G, Line, Rect } from 'react-native-svg';
+import Svg, { Path, Circle, Line, Defs, LinearGradient, Stop, Rect, G, Ellipse } from 'react-native-svg';
 import { COLORS } from '../constants/colors';
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const GRAPH_WIDTH = SCREEN_WIDTH - 70;
+const AnimatedPath = Animated.createAnimatedComponent(Path);
+const AnimatedCircle = Animated.createAnimatedComponent(Circle);
+const AnimatedEllipse = Animated.createAnimatedComponent(Ellipse);
+
+const { width: screenWidth } = Dimensions.get('window');
+const GRAPH_WIDTH = screenWidth - 32;
 const GRAPH_HEIGHT = 240;
 
-const AnimatedCircle = Animated.createAnimatedComponent(Circle);
-const AnimatedPath = Animated.createAnimatedComponent(Path);
-
 export const Graph: React.FC = () => {
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-  const greenLineProgress = useRef(new Animated.Value(0)).current;
-  const redLineProgress = useRef(new Animated.Value(0)).current;
-  const dotProgress = useRef(new Animated.Value(0)).current;
+  // Animation values
+  const containerFade = useRef(new Animated.Value(0)).current;
+  const labelSlide = useRef(new Animated.Value(-20)).current;
+  const greenPathAnim = useRef(new Animated.Value(0)).current;
+  const redPathAnim = useRef(new Animated.Value(0)).current;
+  const dotScale = useRef(new Animated.Value(0)).current;
   const dotPulse = useRef(new Animated.Value(1)).current;
+  const glowRadius = useRef(new Animated.Value(15)).current;
+  const nowMarkerOpacity = useRef(new Animated.Value(0)).current;
+  const arrowTranslate = useRef(new Animated.Value(50)).current;
+  const multiplierOpacity = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    // Fade in container
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 800,
-      delay: 700,
-      useNativeDriver: true,
-    }).start();
-
-    // Draw lines
-    Animated.parallel([
-      Animated.timing(greenLineProgress, {
+    // Orchestrated animation sequence
+    Animated.sequence([
+      // 1. Fade in container
+      Animated.timing(containerFade, {
         toValue: 1,
-        duration: 2000,
-        delay: 1100,
+        duration: 600,
+        delay: 500,
         useNativeDriver: true,
       }),
-      Animated.timing(redLineProgress, {
+      
+      // 2. Label slides down
+      Animated.parallel([
+        Animated.spring(labelSlide, {
+          toValue: 0,
+          tension: 50,
+          friction: 8,
+          useNativeDriver: true,
+        }),
+        
+        // 3. Now marker appears
+        Animated.timing(nowMarkerOpacity, {
+          toValue: 1,
+          duration: 400,
+          useNativeDriver: true,
+        }),
+      ]),
+      
+      // 4. Lines draw simultaneously
+      Animated.parallel([
+        Animated.timing(greenPathAnim, {
+          toValue: 1,
+          duration: 1800,
+          useNativeDriver: false,
+        }),
+        Animated.timing(redPathAnim, {
+          toValue: 1,
+          duration: 1800,
+          delay: 200,
+          useNativeDriver: false,
+        }),
+      ]),
+      
+      // 5. Dot appears with bounce
+      Animated.spring(dotScale, {
         toValue: 1,
-        duration: 2000,
-        delay: 1300,
-        useNativeDriver: true,
+        tension: 40,
+        friction: 3,
+        useNativeDriver: false,
       }),
+      
+      // 6. Arrow and multiplier slide up
+      Animated.parallel([
+        Animated.spring(arrowTranslate, {
+          toValue: 0,
+          tension: 35,
+          friction: 6,
+          useNativeDriver: true,
+        }),
+        Animated.timing(multiplierOpacity, {
+          toValue: 1,
+          duration: 400,
+          useNativeDriver: true,
+        }),
+      ]),
     ]).start();
 
-    // Animate dot along curve
-    Animated.timing(dotProgress, {
-      toValue: 1,
-      duration: 2500,
-      delay: 1100,
-      useNativeDriver: true,
-    }).start();
-
-    // Pulse animation for dot
+    // Continuous animations
+    // Dot pulsing
     Animated.loop(
       Animated.sequence([
         Animated.timing(dotPulse, {
-          toValue: 1.3,
+          toValue: 1.15,
           duration: 800,
-          useNativeDriver: true,
+          useNativeDriver: false,
         }),
         Animated.timing(dotPulse, {
           toValue: 1,
           duration: 800,
-          useNativeDriver: true,
+          useNativeDriver: false,
+        }),
+      ])
+    ).start();
+
+    // Glow effect
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(glowRadius, {
+          toValue: 25,
+          duration: 1200,
+          useNativeDriver: false,
+        }),
+        Animated.timing(glowRadius, {
+          toValue: 15,
+          duration: 1200,
+          useNativeDriver: false,
         }),
       ])
     ).start();
   }, []);
 
-  // Calculate dot position along bezier curve
-  const dotX = dotProgress.interpolate({
-    inputRange: [0, 0.3, 0.6, 1],
-    outputRange: [40, GRAPH_WIDTH * 0.35, GRAPH_WIDTH * 0.7, GRAPH_WIDTH - 20],
-  });
-
-  const dotY = dotProgress.interpolate({
-    inputRange: [0, 0.3, 0.6, 1],
-    outputRange: [GRAPH_HEIGHT - 40, GRAPH_HEIGHT - 95, GRAPH_HEIGHT - 155, GRAPH_HEIGHT - 200],
-  });
-
-  const dotScale = dotPulse.interpolate({
-    inputRange: [1, 1.3],
-    outputRange: [1, 1.3],
-  });
-
-  // Green line path (curved upward) - matches Figma exactly
-  const greenPath = `M 40 ${GRAPH_HEIGHT - 40} Q ${GRAPH_WIDTH * 0.35} ${GRAPH_HEIGHT - 95}, ${GRAPH_WIDTH * 0.7} ${GRAPH_HEIGHT - 155} T ${GRAPH_WIDTH - 20} ${GRAPH_HEIGHT - 200}`;
+  // Calculate the actual SVG paths based on viewport
+  const startX = 45;
+  const startY = GRAPH_HEIGHT - 50;
+  const endX = GRAPH_WIDTH - 40;
   
-  // Red line path (curved downward)
-  const redPath = `M 40 ${GRAPH_HEIGHT - 40} Q ${GRAPH_WIDTH * 0.4} ${GRAPH_HEIGHT - 25}, ${GRAPH_WIDTH * 0.7} ${GRAPH_HEIGHT - 15} T ${GRAPH_WIDTH} ${GRAPH_HEIGHT - 5}`;
-
-  const greenStrokeDashoffset = greenLineProgress.interpolate({
-    inputRange: [0, 1],
-    outputRange: [GRAPH_WIDTH * 2, 0],
-  });
-
-  const redStrokeDashoffset = redLineProgress.interpolate({
-    inputRange: [0, 1],
-    outputRange: [GRAPH_WIDTH * 2, 0],
-  });
+  // Green line path (With Kegels - curves up dramatically)
+  const greenPath = `M ${startX} ${startY} Q ${startX + 60} ${startY - 20}, ${startX + 120} ${startY - 60} T ${startX + 200} ${startY - 120} Q ${endX - 30} ${startY - 145}, ${endX} ${startY - 155}`;
+  
+  // Red line path (No Kegels - stays relatively flat with slight decline)
+  const redPath = `M ${startX} ${startY} Q ${startX + 80} ${startY + 5}, ${startX + 160} ${startY + 10} T ${endX - 40} ${startY + 15} L ${endX} ${startY + 18}`;
 
   return (
-    <Animated.View style={[styles.container, { opacity: fadeAnim }]}>
-      {/* Label */}
-      <View style={styles.label}>
-        <View style={styles.iconCircle}>
-          <Text style={styles.labelIcon}>⏱</Text>
-        </View>
+    <Animated.View style={[styles.container, { opacity: containerFade }]}>
+      {/* Sex duration label */}
+      <Animated.View 
+        style={[
+          styles.label,
+          {
+            transform: [{ translateY: labelSlide }],
+          },
+        ]}
+      >
+        <Text style={styles.labelIcon}>⏱</Text>
         <Text style={styles.labelText}>Sex duration</Text>
-      </View>
+      </Animated.View>
 
-      {/* Graph Area */}
-      <View style={styles.graphArea}>
-        <Svg width={GRAPH_WIDTH} height={GRAPH_HEIGHT} viewBox={`0 0 ${GRAPH_WIDTH} ${GRAPH_HEIGHT}`}>
+      {/* Main Graph Container */}
+      <View style={styles.graphContainer}>
+        <Svg width={GRAPH_WIDTH} height={GRAPH_HEIGHT} style={StyleSheet.absoluteFillObject}>
           <Defs>
-            {/* Background gradient - dark green to light green */}
+            {/* Dark green gradient background */}
             <LinearGradient id="bgGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-              <Stop offset="0%" stopColor="#0d3b2e" stopOpacity="0.9" />
-              <Stop offset="50%" stopColor="#1a5c44" stopOpacity="0.6" />
-              <Stop offset="100%" stopColor="#4ade80" stopOpacity="0.25" />
+              <Stop offset="0%" stopColor="#0F3E26" stopOpacity="1" />
+              <Stop offset="50%" stopColor="#0A2919" stopOpacity="1" />
+              <Stop offset="100%" stopColor="#051611" stopOpacity="1" />
             </LinearGradient>
-
-            {/* Arrow gradient - white to gray */}
-            <LinearGradient id="arrowGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-              <Stop offset="0%" stopColor="#ffffff" stopOpacity="1" />
-              <Stop offset="70%" stopColor="#d1d5db" stopOpacity="0.9" />
-              <Stop offset="100%" stopColor="#9ca3af" stopOpacity="0.7" />
-            </LinearGradient>
-
-            {/* Baseline gradient - green to red */}
-            <LinearGradient id="baselineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-              <Stop offset="0%" stopColor="#4ade80" stopOpacity="1" />
-              <Stop offset="30%" stopColor="#fbbf24" stopOpacity="1" />
-              <Stop offset="60%" stopColor="#fb923c" stopOpacity="1" />
-              <Stop offset="85%" stopColor="#ef4444" stopOpacity="1" />
-              <Stop offset="100%" stopColor="#991b1b" stopOpacity="1" />
+            
+            {/* Dot glow gradient */}
+            <LinearGradient id="dotGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+              <Stop offset="0%" stopColor="#4ADE80" stopOpacity="0.6" />
+              <Stop offset="100%" stopColor="#22C55E" stopOpacity="0.1" />
             </LinearGradient>
           </Defs>
 
-          {/* Background gradient rectangle */}
-          <Rect
-            x="0"
-            y="0"
-            width={GRAPH_WIDTH}
-            height={GRAPH_HEIGHT}
+          {/* Background with gradient */}
+          <Rect 
+            x="0" 
+            y="0" 
+            width={GRAPH_WIDTH} 
+            height={GRAPH_HEIGHT} 
             fill="url(#bgGradient)"
+            rx="12"
           />
 
-          {/* Baseline - gradient dashed line */}
+          {/* Horizontal grid lines (subtle) */}
+          <G opacity="0.08">
+            {[0.2, 0.4, 0.6, 0.8].map((factor, index) => (
+              <Line
+                key={index}
+                x1={startX}
+                y1={GRAPH_HEIGHT * factor}
+                x2={endX}
+                y2={GRAPH_HEIGHT * factor}
+                stroke="#FFFFFF"
+                strokeWidth="1"
+              />
+            ))}
+          </G>
+
+          {/* Y-axis */}
           <Line
-            x1={40}
-            y1={GRAPH_HEIGHT - 40}
-            x2={GRAPH_WIDTH}
-            y2={GRAPH_HEIGHT - 40}
-            stroke="url(#baselineGradient)"
-            strokeWidth="7"
-            strokeDasharray="18 12"
-            strokeLinecap="round"
+            x1={startX}
+            y1="30"
+            x2={startX}
+            y2={startY + 5}
+            stroke="#FFFFFF"
+            strokeWidth="2"
+            opacity="0.2"
           />
 
-          {/* "Now" dot on baseline */}
-          <Circle
-            cx={40}
-            cy={GRAPH_HEIGHT - 40}
-            r={11}
-            fill="#ffffff"
-            stroke="#6b7280"
-            strokeWidth="3"
+          {/* X-axis baseline (dashed) */}
+          <Line
+            x1={startX}
+            y1={startY}
+            x2={endX}
+            y2={startY}
+            stroke="#FFFFFF"
+            strokeWidth="2"
+            strokeDasharray="10 5"
+            opacity="0.4"
           />
 
-          {/* Red line (No Kegels) - thick animated */}
+          {/* Red line - No Kegels */}
           <AnimatedPath
             d={redPath}
-            stroke="#ef4444"
-            strokeWidth="12"
+            stroke={COLORS.brandRed}
+            strokeWidth="4"
             fill="none"
             strokeLinecap="round"
-            strokeDasharray={GRAPH_WIDTH * 2}
-            strokeDashoffset={redStrokeDashoffset}
+            strokeDasharray="400"
+            strokeDashoffset={redPathAnim.interpolate({
+              inputRange: [0, 1],
+              outputRange: [400, 0],
+            })}
+            opacity="0.9"
           />
-
-          {/* Green line (With Kegels) - thick animated */}
+          
+          {/* Green line - With Kegels */}
           <AnimatedPath
             d={greenPath}
-            stroke="#4ade80"
-            strokeWidth="12"
+            stroke={COLORS.brandGreen}
+            strokeWidth="4"
             fill="none"
             strokeLinecap="round"
-            strokeDasharray={GRAPH_WIDTH * 2}
-            strokeDashoffset={greenStrokeDashoffset}
+            strokeDasharray="400"
+            strokeDashoffset={greenPathAnim.interpolate({
+              inputRange: [0, 1],
+              outputRange: [400, 0],
+            })}
           />
 
-          {/* Animated dot moving along green line */}
-          <AnimatedCircle
-            cx={dotX}
-            cy={dotY}
-            r={11}
-            fill="#ffffff"
-            stroke="#4ade80"
-            strokeWidth="4"
-            scale={dotScale}
-          />
-
-          {/* Gradient UP ARROW on right side - EXACT match */}
-          <G transform={`translate(${GRAPH_WIDTH - 50}, ${GRAPH_HEIGHT - 185})`}>
-            {/* Arrow shaft - thick gradient */}
-            <Rect
-              x="13"
-              y="10"
-              width="20"
-              height="85"
-              fill="url(#arrowGradient)"
-              rx="10"
-            />
-            {/* Arrow head - gradient triangle */}
-            <Path
-              d="M 23 0 L 0 28 L 46 28 Z"
-              fill="url(#arrowGradient)"
-            />
-          </G>
-
-          {/* Y-axis with arrow on left */}
-          <G>
-            <Line
-              x1={40}
-              y1={GRAPH_HEIGHT - 40}
-              x2={40}
-              y2={25}
-              stroke="#ffffff"
-              strokeWidth="3.5"
-            />
-            <Path
-              d="M 40 18 L 32 35 L 48 35 Z"
-              fill="#ffffff"
-            />
-          </G>
+          {/* Dot with glow at end of green line */}
+<G>
+  <AnimatedCircle
+    cx={endX}
+    cy={startY - 155}
+    r={glowRadius}  // animate the radius directly
+    fill="url(#dotGlow)"
+    opacity={dotScale}
+  />
+  
+  <AnimatedCircle
+    cx={endX}
+    cy={startY - 155}
+    r="12"
+    fill="#4ADE80"
+    opacity={dotScale.interpolate({
+      inputRange: [0, 1],
+      outputRange: [0, 0.3]
+    })}
+  />
+  
+  <AnimatedCircle
+    cx={endX}
+    cy={startY - 155}
+    r={dotPulse.interpolate({
+      inputRange: [1, 1.15],
+      outputRange: [7, 8]
+    })}
+    fill="#FFFFFF"
+    opacity={dotScale}
+  />
+</G>
         </Svg>
 
-        {/* Now label */}
-        <View style={styles.nowMarker}>
-          <View style={styles.nowLabel}>
+        {/* Now marker */}
+        <Animated.View 
+          style={[
+            styles.nowMarker,
+            { opacity: nowMarkerOpacity }
+          ]}
+        >
+          <View style={styles.nowBubble}>
             <Text style={styles.nowText}>Now</Text>
           </View>
-        </View>
+          <View style={styles.nowArrow} />
+        </Animated.View>
 
-        {/* 7x multiplier */}
-        <View style={styles.multiplier}>
-          <Text style={styles.multiplierValue}>7x</Text>
-        </View>
+        {/* 7x Multiplier with arrow */}
+        <Animated.View 
+          style={[
+            styles.multiplierContainer,
+            {
+              opacity: multiplierOpacity,
+              transform: [{ translateY: arrowTranslate }],
+            },
+          ]}
+        >
+          <View style={styles.arrowUp}>
+            <View style={styles.arrowStem} />
+            <View style={styles.arrowTip} />
+          </View>
+          <Text style={styles.multiplierText}>7x</Text>
+        </Animated.View>
       </View>
 
       {/* Legend */}
       <View style={styles.legend}>
         <View style={styles.legendItem}>
-          <View style={[styles.legendColor, { backgroundColor: '#4ade80' }]} />
+          <View style={[styles.legendIndicator, { backgroundColor: COLORS.brandGreen }]} />
           <Text style={styles.legendText}>With Kegels</Text>
         </View>
         <View style={styles.legendItem}>
-          <View style={[styles.legendColor, { backgroundColor: '#ef4444' }]} />
+          <View style={[styles.legendIndicator, { backgroundColor: COLORS.brandRed }]} />
           <Text style={styles.legendText}>No Kegels</Text>
         </View>
       </View>
@@ -266,93 +328,129 @@ export const Graph: React.FC = () => {
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 16,
+    marginBottom: 20,
   },
   label: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
-    backgroundColor: '#1a1a1a',
+    gap: 8,
+    backgroundColor: 'rgba(30, 41, 59, 0.9)',
     borderWidth: 1,
-    borderColor: '#2d2d2d',
-    borderRadius: 25,
+    borderColor: 'rgba(51, 65, 85, 0.4)',
+    borderRadius: 24,
     paddingVertical: 10,
-    paddingHorizontal: 16,
+    paddingHorizontal: 18,
     alignSelf: 'flex-start',
-    marginLeft: 8,
-    marginBottom: 16,
-  },
-  iconCircle: {
-    width: 26,
-    height: 26,
-    borderRadius: 13,
-    backgroundColor: '#000000',
-    alignItems: 'center',
-    justifyContent: 'center',
+    marginLeft: 45,
+    marginBottom: 20,
   },
   labelIcon: {
-    fontSize: 16,
+    fontSize: 20,
   },
   labelText: {
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: '600',
     color: COLORS.white,
+    letterSpacing: 0.3,
   },
-  graphArea: {
+  graphContainer: {
+    height: GRAPH_HEIGHT,
+    borderRadius: 16,
+    overflow: 'hidden',
     position: 'relative',
-    marginBottom: 16,
-    paddingHorizontal: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 8,
   },
   nowMarker: {
     position: 'absolute',
-    bottom: 62,
-    left: 45,
+    bottom: 35,
+    left: 20,
+    alignItems: 'center',
   },
-  nowLabel: {
-    backgroundColor: '#4b5563',
-    paddingHorizontal: 14,
-    paddingVertical: 6,
-    borderRadius: 8,
+  nowBubble: {
+    backgroundColor: 'rgba(71, 85, 105, 0.95)',
+    paddingHorizontal: 16,
+    paddingVertical: 7,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: 'rgba(100, 116, 139, 0.3)',
   },
   nowText: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '600',
     color: COLORS.white,
+    letterSpacing: 0.5,
   },
-  multiplier: {
+  nowArrow: {
+    width: 0,
+    height: 0,
+    borderLeftWidth: 6,
+    borderRightWidth: 6,
+    borderTopWidth: 6,
+    borderStyle: 'solid',
+    backgroundColor: 'transparent',
+    borderLeftColor: 'transparent',
+    borderRightColor: 'transparent',
+    borderTopColor: 'rgba(71, 85, 105, 0.95)',
+    marginTop: -1,
+  },
+  multiplierContainer: {
     position: 'absolute',
-    top: 80,
-    right: 56,
+    top: 25,
+    right: 35,
+    alignItems: 'center',
   },
-  multiplierValue: {
+  arrowUp: {
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  arrowStem: {
+    width: 3,
+    height: 35,
+    backgroundColor: 'rgba(255, 255, 255, 0.5)',
+  },
+  arrowTip: {
+    width: 0,
+    height: 0,
+    borderLeftWidth: 7,
+    borderRightWidth: 7,
+    borderBottomWidth: 10,
+    borderStyle: 'solid',
+    backgroundColor: 'transparent',
+    borderLeftColor: 'transparent',
+    borderRightColor: 'transparent',
+    borderBottomColor: 'rgba(255, 255, 255, 0.5)',
+    marginTop: -10,
+  },
+  multiplierText: {
     fontSize: 36,
     fontWeight: '700',
     color: COLORS.white,
+    letterSpacing: -1,
   },
   legend: {
     flexDirection: 'row',
-    backgroundColor: '#0a0a0a',
-    borderWidth: 1,
-    borderColor: '#1f1f1f',
-    borderRadius: 16,
-    paddingVertical: 14,
-    paddingHorizontal: 20,
-    justifyContent: 'space-around',
-    marginHorizontal: 16,
+    justifyContent: 'center',
+    gap: 36,
+    marginTop: 20,
   },
   legendItem: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
   },
-  legendColor: {
-    width: 16,
-    height: 16,
+  legendIndicator: {
+    width: 14,
+    height: 14,
     borderRadius: 4,
   },
   legendText: {
     fontSize: 16,
     fontWeight: '600',
     color: COLORS.white,
+    letterSpacing: 0.2,
   },
 });
