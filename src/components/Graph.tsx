@@ -1,21 +1,19 @@
 import React, { useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, Animated } from 'react-native';
-import Svg, { Path, Circle, Line } from 'react-native-svg';
+import { View, Text, StyleSheet, Animated, Dimensions } from 'react-native';
+import Svg, { Path, Circle } from 'react-native-svg';
 import { COLORS } from '../constants/colors';
 
-const AnimatedPath = Animated.createAnimatedComponent(Path);
+const { width } = Dimensions.get('window');
+const GRAPH_WIDTH = width - 32;
+
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
 export const Graph: React.FC = () => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
-  const greenLineAnim = useRef(new Animated.Value(0)).current;
-  const redLineAnim = useRef(new Animated.Value(0)).current;
-  const dotAnim = useRef(new Animated.Value(0)).current;
-  const dotX = useRef(new Animated.Value(40)).current;
-  const dotY = useRef(new Animated.Value(140)).current;
+  const dotOpacity = useRef(new Animated.Value(0)).current;
+  const dotProgress = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    // Fade in container
     Animated.timing(fadeAnim, {
       toValue: 1,
       duration: 800,
@@ -23,116 +21,123 @@ export const Graph: React.FC = () => {
       useNativeDriver: true,
     }).start();
 
-    // Draw green line
-    Animated.timing(greenLineAnim, {
-      toValue: 1,
-      duration: 2000,
-      delay: 1100,
-      useNativeDriver: true,
-    }).start();
-
-    // Draw red line
-    Animated.timing(redLineAnim, {
-      toValue: 1,
-      duration: 2000,
-      delay: 1300,
-      useNativeDriver: true,
-    }).start();
-
-    // Show dot
-    Animated.timing(dotAnim, {
+    // Show dot after lines draw
+    Animated.timing(dotOpacity, {
       toValue: 1,
       duration: 400,
       delay: 2600,
       useNativeDriver: true,
     }).start(() => {
-      // Animate dot movement
+      // Animate dot along path
       Animated.loop(
         Animated.sequence([
-          Animated.parallel([
-            Animated.timing(dotX, { toValue: 280, duration: 3000, useNativeDriver: true }),
-            Animated.timing(dotY, { toValue: 35, duration: 3000, useNativeDriver: true }),
-          ]),
-          Animated.parallel([
-            Animated.timing(dotX, { toValue: 40, duration: 3000, useNativeDriver: true }),
-            Animated.timing(dotY, { toValue: 140, duration: 3000, useNativeDriver: true }),
-          ]),
+          Animated.timing(dotProgress, {
+            toValue: 1,
+            duration: 3000,
+            useNativeDriver: true,
+          }),
+          Animated.timing(dotProgress, {
+            toValue: 0,
+            duration: 3000,
+            useNativeDriver: true,
+          }),
         ])
       ).start();
     });
   }, []);
 
+  // Calculate dot position along bezier curve
+  const dotX = dotProgress.interpolate({
+    inputRange: [0, 0.5, 1],
+    outputRange: [40, 180, 290],
+  });
+
+  const dotY = dotProgress.interpolate({
+    inputRange: [0, 0.5, 1],
+    outputRange: [160, 80, 35],
+  });
+
   return (
     <Animated.View style={[styles.container, { opacity: fadeAnim }]}>
-      {/* Label */}
+      {/* Sex Duration Label */}
       <View style={styles.label}>
         <Text style={styles.labelIcon}>🕐</Text>
         <Text style={styles.labelText}>Sex duration</Text>
       </View>
 
-      {/* Graph Area */}
-      <View style={styles.graphArea}>
+      {/* Graph Container */}
+      <View style={styles.graphContainer}>
         {/* Grid Lines */}
         <View style={[styles.gridLine, { top: '20%' }]} />
         <View style={[styles.gridLine, { top: '40%' }]} />
         <View style={[styles.gridLine, { top: '60%' }]} />
         <View style={[styles.gridLine, { top: '80%' }]} />
 
+        {/* Axes */}
+        <View style={styles.yAxis} />
+        <View style={styles.xAxis} />
+
         {/* SVG Graph */}
-        <Svg width="100%" height="100%" viewBox="0 0 343 220">
-          {/* Green line - With Kegels */}
-          <AnimatedPath
-            d="M 40 140 Q 120 100, 200 60 T 300 28"
+        <Svg width="100%" height="100%" style={styles.svg}>
+          {/* Green line - smooth curve going UP */}
+          <Path
+            d="M 40 160 C 100 120, 160 70, 220 50 C 250 40, 270 32, 290 35"
             stroke={COLORS.brandGreen}
-            strokeWidth="4"
+            strokeWidth="3.5"
             fill="none"
             strokeLinecap="round"
-            opacity={greenLineAnim}
+            opacity={0.95}
           />
           
-          {/* Red line - No Kegels */}
-          <AnimatedPath
-            d="M 40 145 Q 120 155, 200 165 T 300 180"
+          {/* Red line - smooth curve going DOWN */}
+          <Path
+            d="M 40 165 C 100 175, 160 180, 220 185 C 260 188, 280 190, 310 195"
             stroke={COLORS.brandRed}
-            strokeWidth="4"
+            strokeWidth="3.5"
             fill="none"
             strokeLinecap="round"
-            opacity={redLineAnim}
+            opacity={0.95}
           />
 
-          {/* Animated dot */}
+          {/* Animated white dot */}
           <AnimatedCircle
             cx={dotX}
             cy={dotY}
             r="8"
             fill={COLORS.white}
-            opacity={dotAnim}
+            opacity={dotOpacity}
           />
         </Svg>
 
-        {/* Now marker */}
+        {/* Glow effect behind green line */}
+        <View style={styles.glow} />
+
+        {/* Now Marker */}
         <View style={styles.nowMarker}>
-          <View style={styles.nowLabel}>
+          <View style={styles.nowLabelContainer}>
             <Text style={styles.nowText}>Now</Text>
           </View>
           <View style={styles.nowArrow} />
         </View>
 
-        {/* 7x multiplier */}
-        <View style={styles.multiplier}>
-          <Text style={styles.multiplierText}>↑</Text>
-          <Text style={styles.multiplierValue}>7x</Text>
+        {/* 7x Multiplier with Arrow */}
+        <View style={styles.multiplierContainer}>
+          <View style={styles.arrow}>
+            <View style={styles.arrowLine} />
+            <View style={styles.arrowHead} />
+          </View>
+          <Text style={styles.multiplierText}>7x</Text>
         </View>
       </View>
 
       {/* Legend */}
       <View style={styles.legend}>
         <View style={styles.legendItem}>
-          <View style={[styles.legendColor, { backgroundColor: COLORS.brandGreen }]} />
+          <View style={[styles.legendDot, { backgroundColor: COLORS.brandGreen }]} />
           <Text style={styles.legendText}>With Kegels</Text>
         </View>
         <View style={styles.legendItem}>
-          <View style={[styles.legendColor, { backgroundColor: COLORS.brandRed }]} />
+          <View style={[styles.legendDot, { backgroundColor: COLORS.brandRed }]} />
           <Text style={styles.legendText}>No Kegels</Text>
         </View>
       </View>
@@ -142,88 +147,142 @@ export const Graph: React.FC = () => {
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 16,
+    marginBottom: 8,
   },
   label: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    backgroundColor: COLORS.gray[900],
+    backgroundColor: COLORS.gradientGray.from,
     borderWidth: 1,
-    borderColor: COLORS.gray[850],
+    borderColor: COLORS.gray[900],
     borderRadius: 12,
-    padding: 8,
+    paddingVertical: 8,
     paddingHorizontal: 14,
     alignSelf: 'flex-start',
     marginLeft: 35,
-    marginBottom: 16,
+    marginBottom: 12,
   },
   labelIcon: {
-    fontSize: 18,
+    fontSize: 20,
   },
   labelText: {
     fontSize: 16,
     fontWeight: '600',
     color: COLORS.white,
+    letterSpacing: -0.31,
   },
-  graphArea: {
-    height: 220,
-    borderBottomWidth: 2,
-    borderLeftWidth: 2,
-    borderColor: COLORS.gray[700],
-    marginBottom: 16,
+  graphContainer: {
+    height: 240,
     position: 'relative',
+    marginBottom: 8,
   },
   gridLine: {
     position: 'absolute',
-    left: 0,
+    left: 17,
     right: 0,
     height: 1,
     backgroundColor: COLORS.gray[800],
+    opacity: 0.3,
+  },
+  yAxis: {
+    position: 'absolute',
+    left: 16,
+    top: 0,
+    bottom: 20,
+    width: 1,
+    backgroundColor: COLORS.gray[700],
+  },
+  xAxis: {
+    position: 'absolute',
+    left: 16,
+    right: 0,
+    bottom: 20,
+    height: 1,
+    backgroundColor: COLORS.gray[700],
+  },
+  svg: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+  },
+  glow: {
+    position: 'absolute',
+    top: 40,
+    left: 20,
+    right: 20,
+    height: 120,
+    backgroundColor: COLORS.brandGreen,
+    opacity: 0.08,
+    borderRadius: 100,
+    transform: [{ scaleX: 2 }],
   },
   nowMarker: {
     position: 'absolute',
-    bottom: -30,
-    left: 17,
+    bottom: -10,
+    left: 33,
     alignItems: 'center',
+    zIndex: 10,
   },
-  nowLabel: {
+  nowLabelContainer: {
     backgroundColor: COLORS.gray[700],
     paddingHorizontal: 12,
     paddingVertical: 4,
     borderRadius: 8,
+    marginBottom: 2,
   },
   nowText: {
     fontSize: 16,
     color: COLORS.white,
+    fontWeight: '400',
+    letterSpacing: -0.31,
   },
   nowArrow: {
     width: 0,
     height: 0,
     borderLeftWidth: 8,
     borderRightWidth: 8,
-    borderTopWidth: 10,
+    borderTopWidth: 8,
     borderStyle: 'solid',
     backgroundColor: 'transparent',
     borderLeftColor: 'transparent',
     borderRightColor: 'transparent',
     borderTopColor: COLORS.gray[700],
-    marginTop: -1,
   },
-  multiplier: {
+  multiplierContainer: {
     position: 'absolute',
-    top: 70,
-    right: 16,
+    top: 60,
+    right: 20,
+    alignItems: 'center',
+    gap: 4,
+  },
+  arrow: {
     alignItems: 'center',
   },
-  multiplierText: {
-    fontSize: 40,
-    color: COLORS.accentGreen,
+  arrowLine: {
+    width: 3,
+    height: 90,
+    backgroundColor: COLORS.accentGreen,
+    borderRadius: 2,
   },
-  multiplierValue: {
-    fontSize: 20,
-    fontWeight: '700',
+  arrowHead: {
+    width: 0,
+    height: 0,
+    borderLeftWidth: 8,
+    borderRightWidth: 8,
+    borderBottomWidth: 12,
+    borderStyle: 'solid',
+    backgroundColor: 'transparent',
+    borderLeftColor: 'transparent',
+    borderRightColor: 'transparent',
+    borderBottomColor: COLORS.accentGreen,
+    marginTop: -2,
+  },
+  multiplierText: {
+    fontSize: 17,
+    fontWeight: '600',
     color: COLORS.white,
+    letterSpacing: -0.43,
   },
   legend: {
     flexDirection: 'row',
@@ -231,17 +290,18 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: COLORS.gray[850],
     borderRadius: 16,
-    padding: 12,
+    paddingVertical: 12,
     paddingHorizontal: 16,
     justifyContent: 'center',
     gap: 40,
+    marginTop: 8,
   },
   legendItem: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
   },
-  legendColor: {
+  legendDot: {
     width: 16,
     height: 16,
     borderRadius: 4,
@@ -250,5 +310,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '600',
     color: COLORS.white,
+    letterSpacing: -0.23,
   },
 });
