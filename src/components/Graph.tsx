@@ -26,6 +26,8 @@ export const Graph: React.FC = () => {
   const arrowY = useRef(new Animated.Value(40)).current;
   const arrowOpacity = useRef(new Animated.Value(0)).current;
   const multiplierOpacity = useRef(new Animated.Value(0)).current;
+  const textOpacity = useRef(new Animated.Value(0)).current;
+  const textX = useRef(new Animated.Value(10)).current;
   const bgGlowOpacity = useRef(new Animated.Value(0)).current;
   const topCurveProgress = useRef(new Animated.Value(0)).current;
   const dotProgress = useRef(new Animated.Value(0)).current;
@@ -33,6 +35,7 @@ export const Graph: React.FC = () => {
   useEffect(() => {
     topCurveProgress.setValue(0);
     dotProgress.setValue(0);
+    // Main sequence: fade + baseline + curves + dot
     Animated.parallel([
       Animated.timing(fade, { toValue: 1, duration: 450, delay: 250, useNativeDriver: true }),
       Animated.spring(labelY, { toValue: 0, useNativeDriver: true }),
@@ -41,7 +44,7 @@ export const Graph: React.FC = () => {
       Animated.timing(dotAppear, { toValue: 1, duration: 0, useNativeDriver: false }),          // dot appears immediately
       Animated.timing(topCurveProgress, {
         toValue: 1,
-        duration: 6860,
+        duration: 16300,
         easing: Easing.linear,
         useNativeDriver: false,
       }), // top curve stroke (slower so dot leads)
@@ -51,14 +54,21 @@ export const Graph: React.FC = () => {
         easing: Easing.linear,
         useNativeDriver: false,
       }), // faster dot travel
-    ]).start(() => {
-      // Arrow & multiplier after curves start
+    ]).start();
+
+    // Arrow appears first, then "7x" types-on (fade + slide) shortly after
+    Animated.sequence([
+      Animated.delay(800),
       Animated.parallel([
-        Animated.spring(arrowY, { toValue: 0, useNativeDriver: true }),
-        Animated.timing(arrowOpacity, { toValue: 1, duration: 400, useNativeDriver: true }),
-        Animated.timing(multiplierOpacity, { toValue: 1, duration: 400, useNativeDriver: true }),
-      ]).start();
-    });
+        Animated.timing(arrowY, { toValue: 0, duration: 650, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
+        Animated.timing(arrowOpacity, { toValue: 1, duration: 480, useNativeDriver: true }),
+        Animated.timing(multiplierOpacity, { toValue: 1, duration: 480, useNativeDriver: true }),
+      ]),
+      Animated.parallel([
+        Animated.timing(textOpacity, { toValue: 1, duration: 380, useNativeDriver: true }),
+        Animated.timing(textX, { toValue: 0, duration: 380, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
+      ]),
+    ]).start();
 
     // Glow breathing
     Animated.loop(
@@ -79,6 +89,13 @@ export const Graph: React.FC = () => {
   const gridSpacing = (startY - topPadding) / gridCount;
   const gridYs = Array.from({ length: gridCount }, (_, i) => startY - (i + 1) * gridSpacing);
   const hatchY = gridYs[1];
+  // Adjust how far DOWN the arrow+7x sits relative to the hatch line.
+  // Positive value moves it lower (toward the bottom of the screen).
+  const ARROW_WIDTH = 45;  // change to make the arrow wider
+  const ARROW_HEIGHT = 130; // change to make the arrow taller
+  const ARROW_LOWER = 45; // tweak this number to move the arrow+text down/up
+  const MULTIPLIER_FONT_SIZE = 20; // adjust this to change "7x" font size
+  const MULTIPLIER_TEXT_Y = -45; // positive moves "7x" lower relative to arrow base
 
   const nowDotX = startX + 45;
   const nowDotY = hatchY;
@@ -235,6 +252,10 @@ export const Graph: React.FC = () => {
         <Animated.View style={[styles.bgGlowWrapper, { opacity: bgGlowOpacity }]}>
           <Image source={bgGlow} style={styles.bgGlow} resizeMode="cover" />
         </Animated.View>
+        {/* Right-side bright glow */}
+        <Animated.View style={[styles.bgGlowWrapper, { opacity: bgGlowOpacity }]}>
+          <Image source={bgGlow} style={[styles.bgGlow, { opacity: 0.5 }]} resizeMode="cover" />
+        </Animated.View>
 
         {/* Curves */}
         <View pointerEvents="none" style={StyleSheet.absoluteFill}>
@@ -289,17 +310,32 @@ export const Graph: React.FC = () => {
           <View style={styles.nowArrow} />
         </View>
 
-        {/* Arrow + multiplier */}
+        {/* Arrow + multiplier (arrow bottom sits just above hatched line) */}
         <Animated.View
           style={[
             styles.multiplierGroup,
-            { opacity: multiplierOpacity, transform: [{ translateY: arrowY }], top: hatchY - 68 },
+            {
+              opacity: multiplierOpacity,
+              transform: [{ translateY: arrowY }],
+              top: hatchY - ARROW_HEIGHT - 4 + ARROW_LOWER, // bottom of arrow sits just above hatch
+            },
           ]}
         >
           <Animated.View style={{ opacity: arrowOpacity }}>
-            <ArrowUp width={34} height={112} delay={300} />
+            <ArrowUp width={ARROW_WIDTH} height={ARROW_HEIGHT} delay={0} />
           </Animated.View>
-          <Text style={styles.multiplierText}>7x</Text>
+          <Animated.Text
+            style={[
+              styles.multiplierText,
+              {
+                fontSize: MULTIPLIER_FONT_SIZE,
+                opacity: textOpacity,
+                transform: [{ translateX: textX }, { translateY: MULTIPLIER_TEXT_Y }],
+              },
+            ]}
+          >
+            7x
+          </Animated.Text>
         </Animated.View>
 
         {/* Sex duration label */}
@@ -334,6 +370,7 @@ const styles = StyleSheet.create({
     // bring graph down away from headline
     marginTop: 24,
     marginBottom: 20,
+    overflow: 'visible',
   },
   graphWrapper: {
     height: GRAPH_HEIGHT,
@@ -365,10 +402,11 @@ const styles = StyleSheet.create({
   // Bright right-side glow larger coverage
   bgGlowWrapper: {
     position: 'absolute',
-    top: -12,
-    right: -16,
-    bottom: -12,
-    width: '85%',
+    top: -140,
+    right: -40,
+    bottom: -140,
+    left: -40,
+    width: '120%',
   },
   bgGlow: { width: '100%', height: '100%' },
 
@@ -382,8 +420,8 @@ const styles = StyleSheet.create({
   },
 
   // 7x group
-  multiplierGroup: { position: 'absolute', right: 32, alignItems: 'center' },
-  multiplierText: { fontSize: 32, fontWeight: '700', color: COLORS.white, marginTop: 4, letterSpacing: -1 },
+  multiplierGroup: { position: 'absolute', right: 32, flexDirection: 'row', alignItems: 'flex-end', zIndex: 15 },
+  multiplierText: { fontSize: 32, fontWeight: '700', color: COLORS.white, marginLeft: 8, letterSpacing: -1 },
   arrowImage: { width: 50, height: 90 },
 
   // Legend (unchanged)

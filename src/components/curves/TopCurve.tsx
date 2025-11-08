@@ -55,7 +55,7 @@ export const TopCurve: React.FC<Props> = ({
   const scaleY = height / vbH;
 
   const strokeDriver = (progress ?? internal) as Animated.Value;
-  const pathTravelFactor = 0.93; // dot stops at 93% of path
+  const pathTravelFactor = 0.95; // dot stops at 93% of path
 
   // Base driver for dot (external override wins). Clamp to finish early so stroke can keep flowing.
   const dotBase = (dotProgress ?? strokeDriver) as Animated.Value;
@@ -80,7 +80,7 @@ export const TopCurve: React.FC<Props> = ({
   });
 
   // Longer dash so the stroke travels fully to the end
-  const baseLength = 1800;
+  const baseLength = 4000;
   const dashLength = baseLength * ((width / vbW + height / vbH) / 2);
   const dashOffset = strokeDriver.interpolate({
     inputRange: [0, 1],
