@@ -1,31 +1,30 @@
-import React, { useEffect } from 'react';
-import { Text, StyleSheet } from 'react-native';
-import Animated, { useSharedValue, useAnimatedStyle, withTiming, withDelay } from 'react-native-reanimated';
+import React, { useEffect, useRef } from 'react';
+import { Text, StyleSheet, Animated } from 'react-native';
 import { COLORS } from '../constants/colors';
-import { ANIMATION_DELAYS, ANIMATION_DURATIONS } from '../constants/animations';
 
 export const Headline: React.FC = () => {
-  const opacity = useSharedValue(0);
-  const translateY = useSharedValue(20);
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const translateY = useRef(new Animated.Value(20)).current;
 
   useEffect(() => {
-    opacity.value = withDelay(
-      ANIMATION_DELAYS.headline,
-      withTiming(1, { duration: ANIMATION_DURATIONS.headline })
-    );
-    translateY.value = withDelay(
-      ANIMATION_DELAYS.headline,
-      withTiming(0, { duration: ANIMATION_DURATIONS.headline })
-    );
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 600,
+        delay: 500,
+        useNativeDriver: true,
+      }),
+      Animated.timing(translateY, {
+        toValue: 0,
+        duration: 600,
+        delay: 500,
+        useNativeDriver: true,
+      }),
+    ]).start();
   }, []);
 
-  const animatedStyle = useAnimatedStyle(() => ({
-    opacity: opacity.value,
-    transform: [{ translateY: translateY.value }],
-  }));
-
   return (
-    <Animated.Text style={[styles.headline, animatedStyle]}>
+    <Animated.Text style={[styles.headline, { opacity: fadeAnim, transform: [{ translateY }] }]}>
       Kegel exercises strengthen PF muscles, which significantly increases{' '}
       <Text style={styles.highlight}>ejaculation control.</Text>
     </Animated.Text>

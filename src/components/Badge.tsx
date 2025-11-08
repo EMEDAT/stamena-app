@@ -1,31 +1,28 @@
-import React, { useEffect } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import Animated, { useSharedValue, useAnimatedStyle, withTiming, withSpring } from 'react-native-reanimated';
+import React, { useEffect, useRef } from 'react';
+import { View, Text, StyleSheet, Animated } from 'react-native';
 import { COLORS } from '../constants/colors';
-import { ANIMATION_DELAYS, ANIMATION_DURATIONS } from '../constants/animations';
 
 export const Badge: React.FC = () => {
-  const opacity = useSharedValue(0);
-  const translateY = useSharedValue(-20);
-  const scale = useSharedValue(0.9);
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const translateY = useRef(new Animated.Value(-20)).current;
 
   useEffect(() => {
-    opacity.value = withTiming(1, { duration: ANIMATION_DURATIONS.badge });
-    translateY.value = withSpring(0, { damping: 15, stiffness: 150 });
-    scale.value = withSpring(1, { damping: 10, stiffness: 100 });
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 800,
+        useNativeDriver: true,
+      }),
+      Animated.spring(translateY, {
+        toValue: 0,
+        useNativeDriver: true,
+      }),
+    ]).start();
   }, []);
-
-  const animatedStyle = useAnimatedStyle(() => ({
-    opacity: opacity.value,
-    transform: [
-      { translateY: translateY.value },
-      { scale: scale.value },
-    ],
-  }));
 
   return (
     <View style={styles.container}>
-      <Animated.View style={[styles.badge, animatedStyle]}>
+      <Animated.View style={[styles.badge, { opacity: fadeAnim, transform: [{ translateY }] }]}>
         <Text style={styles.icon}>✓</Text>
         <Text style={styles.text}>STUDY FACT</Text>
       </Animated.View>
@@ -46,11 +43,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 10,
-    shadowColor: COLORS.brandRed,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.4,
-    shadowRadius: 12,
-    elevation: 8,
   },
   icon: {
     fontSize: 14,
@@ -60,6 +52,5 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '600',
     color: COLORS.white,
-    letterSpacing: -0.23,
   },
 });

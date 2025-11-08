@@ -4,6 +4,9 @@ import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { COLORS } from './src/constants/colors';
 import { Badge } from './src/components/Badge';
 import { Headline } from './src/components/Headline';
+import { Graph } from './src/components/Graph';
+import { Source } from './src/components/Source';
+import { Button } from './src/components/Button';
 
 export default function App() {
   return (
@@ -13,6 +16,9 @@ export default function App() {
         <ScrollView style={styles.scrollView} contentContainerStyle={styles.content}>
           <Badge />
           <Headline />
+          <Graph />
+          <Source />
+          <Button />
         </ScrollView>
       </SafeAreaView>
     </SafeAreaProvider>
@@ -30,5 +36,6 @@ const styles = StyleSheet.create({
   content: {
     paddingHorizontal: 16,
     paddingTop: 40,
+    paddingBottom: 40,
   },
 });
