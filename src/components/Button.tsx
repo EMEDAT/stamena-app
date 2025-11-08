@@ -1,79 +1,110 @@
-import React, { useEffect, useRef } from 'react';
-import { Text, StyleSheet, Animated, TouchableOpacity } from 'react-native';
+import React, { useEffect } from 'react';
+import { Text, StyleSheet, Pressable } from 'react-native';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+  withTiming,
+  withDelay,
+  interpolate,
+} from 'react-native-reanimated';
 import { COLORS } from '../constants/colors';
 
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+
 export const Button: React.FC = () => {
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-  const translateY = useRef(new Animated.Value(20)).current;
-  const pulseAnim = useRef(new Animated.Value(1)).current;
+  const opacity = useSharedValue(0);
+  const translateY = useSharedValue(30);
+  const scale = useSharedValue(1);
+  const glowOpacity = useSharedValue(0);
 
   useEffect(() => {
-    // Fade in
-    Animated.parallel([
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 500,
-        delay: 2100,
-        useNativeDriver: true,
-      }),
-      Animated.timing(translateY, {
-        toValue: 0,
-        duration: 500,
-        delay: 2100,
-        useNativeDriver: true,
-      }),
-    ]).start(() => {
-      // Start pulse after appearing
-      Animated.loop(
-        Animated.sequence([
-          Animated.timing(pulseAnim, {
-            toValue: 1.05,
-            duration: 1000,
-            useNativeDriver: true,
-          }),
-          Animated.timing(pulseAnim, {
-            toValue: 1,
-            duration: 1000,
-            useNativeDriver: true,
-          }),
-        ])
-      ).start();
-    });
+    // Button entrance animation
+    opacity.value = withDelay(2100, withTiming(1, { duration: 500 }));
+    translateY.value = withDelay(
+      2100,
+      withSpring(0, {
+        damping: 20,
+        stiffness: 200,
+      })
+    );
   }, []);
 
+  const buttonAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      opacity: opacity.value,
+      transform: [
+        { translateY: translateY.value },
+        { scale: scale.value },
+      ],
+    };
+  });
+
+  const glowAnimatedStyle = useAnimatedStyle(() => {
+    return {
+      opacity: interpolate(glowOpacity.value, [0, 1], [0.3, 0.6]),
+    };
+  });
+
+  const handlePressIn = () => {
+    scale.value = withTiming(0.96, { duration: 100 });
+    glowOpacity.value = withTiming(1, { duration: 100 });
+  };
+
+  const handlePressOut = () => {
+    scale.value = withSpring(1, {
+      damping: 15,
+      stiffness: 300,
+    });
+    glowOpacity.value = withTiming(0, { duration: 200 });
+  };
+
   return (
-    <Animated.View
-      style={[
-        styles.container,
-        {
-          opacity: fadeAnim,
-          transform: [{ translateY }, { scale: pulseAnim }],
-        },
-      ]}
+    <AnimatedPressable
+      style={[styles.button, buttonAnimatedStyle]}
+      onPressIn={handlePressIn}
+      onPressOut={handlePressOut}
+      onPress={() => {
+        console.log('Button pressed!');
+      }}
     >
-      <TouchableOpacity style={styles.button} activeOpacity={0.8}>
-        <Text style={styles.text}>I got it</Text>
-      </TouchableOpacity>
-    </Animated.View>
+      <Animated.View style={[styles.glow, glowAnimatedStyle]} />
+      <Text style={styles.text}>I got it</Text>
+    </AnimatedPressable>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    marginTop: 32,
-    marginBottom: 20,
-  },
   button: {
     backgroundColor: COLORS.brandRed,
-    paddingVertical: 12,
-    paddingHorizontal: 18,
-    borderRadius: 12,
+    paddingVertical: 18,
+    paddingHorizontal: 32,
+    borderRadius: 16,
     alignItems: 'center',
-    justifyContent: 'center',
+    marginTop: 24,
+    shadowColor: COLORS.brandRed,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.3,
+    shadowRadius: 16,
+    elevation: 8,
+    position: 'relative',
+    overflow: 'visible',
+  },
+  glow: {
+    position: 'absolute',
+    top: -10,
+    left: -10,
+    right: -10,
+    bottom: -10,
+    backgroundColor: COLORS.brandRed,
+    borderRadius: 20,
+    opacity: 0,
+    zIndex: -1,
   },
   text: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: 17,
+    fontWeight: '700',
     color: COLORS.white,
+    letterSpacing: 0.5,
   },
 });

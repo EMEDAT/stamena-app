@@ -1,32 +1,64 @@
-import React, { useEffect, useRef } from 'react';
-import { Text, StyleSheet, Animated } from 'react-native';
+import React, { useEffect } from 'react';
+import { Text, StyleSheet } from 'react-native';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  withDelay,
+  Easing,
+} from 'react-native-reanimated';
 import { COLORS } from '../constants/colors';
 
 export const Headline: React.FC = () => {
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-  const translateY = useRef(new Animated.Value(20)).current;
+  const opacity1 = useSharedValue(0);
+  const opacity2 = useSharedValue(0);
+  const translateY1 = useSharedValue(20);
+  const translateY2 = useSharedValue(20);
 
   useEffect(() => {
-    Animated.parallel([
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 600,
-        delay: 500,
-        useNativeDriver: true,
-      }),
-      Animated.timing(translateY, {
-        toValue: 0,
-        duration: 600,
-        delay: 500,
-        useNativeDriver: true,
-      }),
-    ]).start();
+    // First part of text
+    opacity1.value = withDelay(
+      400,
+      withTiming(1, { duration: 600, easing: Easing.out(Easing.cubic) })
+    );
+    translateY1.value = withDelay(
+      400,
+      withTiming(0, { duration: 600, easing: Easing.out(Easing.cubic) })
+    );
+
+    // Second part (highlight)
+    opacity2.value = withDelay(
+      800,
+      withTiming(1, { duration: 600, easing: Easing.out(Easing.cubic) })
+    );
+    translateY2.value = withDelay(
+      800,
+      withTiming(0, { duration: 600, easing: Easing.out(Easing.cubic) })
+    );
   }, []);
 
+  const firstPartStyle = useAnimatedStyle(() => {
+    return {
+      opacity: opacity1.value,
+      transform: [{ translateY: translateY1.value }],
+    };
+  });
+
+  const highlightStyle = useAnimatedStyle(() => {
+    return {
+      opacity: opacity2.value,
+      transform: [{ translateY: translateY2.value }],
+    };
+  });
+
   return (
-    <Animated.Text style={[styles.headline, { opacity: fadeAnim, transform: [{ translateY }] }]}>
-      Kegel exercises strengthen PF muscles, which significantly increases{' '}
-      <Text style={styles.highlight}>ejaculation control.</Text>
+    <Animated.Text style={styles.headline}>
+      <Animated.Text style={firstPartStyle}>
+        Kegel exercises strengthen PF muscles, which significantly increases{' '}
+      </Animated.Text>
+      <Animated.Text style={[styles.highlight, highlightStyle]}>
+        ejaculation control.
+      </Animated.Text>
     </Animated.Text>
   );
 };

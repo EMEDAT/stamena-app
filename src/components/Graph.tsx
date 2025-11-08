@@ -1,69 +1,176 @@
-import React, { useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, Animated, Dimensions } from 'react-native';
-import Svg, { Path, Circle } from 'react-native-svg';
+import React, { useEffect } from 'react';
+import { View, Text, StyleSheet, Dimensions } from 'react-native';
+import Svg, { Path, Circle, Defs, LinearGradient, Stop, RadialGradient } from 'react-native-svg';
+import Animated, {
+  useSharedValue,
+  useAnimatedProps,
+  withTiming,
+  withDelay,
+  withRepeat,
+  withSequence,
+  Easing,
+  interpolate,
+} from 'react-native-reanimated';
 import { COLORS } from '../constants/colors';
 
 const { width } = Dimensions.get('window');
 const GRAPH_WIDTH = width - 32;
 
+const AnimatedPath = Animated.createAnimatedComponent(Path);
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
+const AnimatedView = Animated.View;
 
 export const Graph: React.FC = () => {
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-  const dotOpacity = useRef(new Animated.Value(0)).current;
-  const dotProgress = useRef(new Animated.Value(0)).current;
+  // Animation values
+  const containerOpacity = useSharedValue(0);
+  const labelSlide = useSharedValue(-30);
+  const greenLineProgress = useSharedValue(0);
+  const redLineProgress = useSharedValue(0);
+  const dotOpacity = useSharedValue(0);
+  const dotScale = useSharedValue(0);
+  const glowOpacity = useSharedValue(0);
+  const glowScale = useSharedValue(1);
+  const nowMarkerY = useSharedValue(20);
+  const arrowY = useSharedValue(0);
+  const multiplierScale = useSharedValue(0.8);
 
   useEffect(() => {
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 800,
-      delay: 700,
-      useNativeDriver: true,
-    }).start();
+    // 1. Container fade in
+    containerOpacity.value = withDelay(700, withTiming(1, { duration: 800 }));
 
-    // Show dot after lines draw
-    Animated.timing(dotOpacity, {
-      toValue: 1,
-      duration: 400,
-      delay: 2600,
-      useNativeDriver: true,
-    }).start(() => {
-      // Animate dot along path
-      Animated.loop(
-        Animated.sequence([
-          Animated.timing(dotProgress, {
-            toValue: 1,
-            duration: 3000,
-            useNativeDriver: true,
-          }),
-          Animated.timing(dotProgress, {
-            toValue: 0,
-            duration: 3000,
-            useNativeDriver: true,
-          }),
-        ])
-      ).start();
-    });
+    // 2. Label slide in
+    labelSlide.value = withDelay(600, withTiming(0, { duration: 600, easing: Easing.out(Easing.cubic) }));
+
+    // 3. Draw green line
+    greenLineProgress.value = withDelay(
+      1100,
+      withTiming(1, { duration: 2000, easing: Easing.inOut(Easing.cubic) })
+    );
+
+    // 4. Draw red line
+    redLineProgress.value = withDelay(
+      1300,
+      withTiming(1, { duration: 2000, easing: Easing.inOut(Easing.cubic) })
+    );
+
+    // 5. Glow effect
+    glowOpacity.value = withDelay(1600, withTiming(0.3, { duration: 800 }));
+    glowScale.value = withDelay(
+      1600,
+      withRepeat(
+        withSequence(
+          withTiming(1.1, { duration: 2000, easing: Easing.inOut(Easing.sin) }),
+          withTiming(1, { duration: 2000, easing: Easing.inOut(Easing.sin) })
+        ),
+        -1,
+        false
+      )
+    );
+
+    // 6. Dot appears with bounce
+    dotOpacity.value = withDelay(2600, withTiming(1, { duration: 400 }));
+    dotScale.value = withDelay(
+      2600,
+      withSequence(
+        withTiming(1.4, { duration: 300, easing: Easing.out(Easing.cubic) }),
+        withTiming(1, { duration: 200, easing: Easing.inOut(Easing.cubic) })
+      )
+    );
+
+    // 7. Now marker slides up
+    nowMarkerY.value = withDelay(
+      1900,
+      withTiming(0, { duration: 600, easing: Easing.out(Easing.cubic) })
+    );
+
+    // 8. Arrow floats
+    arrowY.value = withDelay(
+      3100,
+      withRepeat(
+        withSequence(
+          withTiming(-8, { duration: 1500, easing: Easing.inOut(Easing.sin) }),
+          withTiming(0, { duration: 1500, easing: Easing.inOut(Easing.sin) })
+        ),
+        -1,
+        false
+      )
+    );
+
+    // 9. Multiplier pops in
+    multiplierScale.value = withDelay(
+      3100,
+      withSequence(
+        withTiming(1.2, { duration: 400, easing: Easing.out(Easing.back(2)) }),
+        withTiming(1, { duration: 200 })
+      )
+    );
   }, []);
 
-  // Calculate dot position along bezier curve
-  const dotX = dotProgress.interpolate({
-    inputRange: [0, 0.5, 1],
-    outputRange: [40, 180, 290],
+  // Animated props for green path
+  const greenAnimatedProps = useAnimatedProps(() => {
+    return {
+      strokeDashoffset: interpolate(greenLineProgress.value, [0, 1], [350, 0]),
+    };
   });
 
-  const dotY = dotProgress.interpolate({
-    inputRange: [0, 0.5, 1],
-    outputRange: [160, 80, 35],
+  // Animated props for red path
+  const redAnimatedProps = useAnimatedProps(() => {
+    return {
+      strokeDashoffset: interpolate(redLineProgress.value, [0, 1], [350, 0]),
+    };
   });
+
+  // Animated style for container
+  const containerStyle = useAnimatedProps(() => ({
+    opacity: containerOpacity.value,
+  }));
+
+  // Animated style for label
+  const labelStyle = useAnimatedProps(() => ({
+    opacity: interpolate(labelSlide.value, [-30, 0], [0, 1]),
+    transform: [{ translateX: labelSlide.value }],
+  }));
+
+  // Animated style for glow
+  const glowStyle = useAnimatedProps(() => ({
+    opacity: glowOpacity.value,
+    transform: [{ scale: glowScale.value }],
+  }));
+
+  // Animated style for now marker
+  const nowMarkerStyle = useAnimatedProps(() => ({
+    opacity: interpolate(nowMarkerY.value, [20, 0], [0, 1]),
+    transform: [{ translateY: nowMarkerY.value }],
+  }));
+
+  // Animated style for arrow
+  const arrowStyle = useAnimatedProps(() => ({
+    transform: [{ translateY: arrowY.value }],
+  }));
+
+  // Animated style for multiplier
+  const multiplierContainerStyle = useAnimatedProps(() => ({
+    opacity: interpolate(multiplierScale.value, [0.8, 1], [0, 1]),
+    transform: [{ scale: multiplierScale.value }],
+  }));
+
+  // Animated props for dots
+  const dotGlowProps = useAnimatedProps(() => ({
+    opacity: dotOpacity.value,
+  }));
+
+  const dotCenterProps = useAnimatedProps(() => ({
+    opacity: dotOpacity.value,
+    r: interpolate(dotScale.value, [0, 1], [0, 7]),
+  }));
 
   return (
-    <Animated.View style={[styles.container, { opacity: fadeAnim }]}>
+    <AnimatedView style={[styles.container, containerStyle]}>
       {/* Sex Duration Label */}
-      <View style={styles.label}>
+      <AnimatedView style={[styles.label, labelStyle]}>
         <Text style={styles.labelIcon}>🕐</Text>
         <Text style={styles.labelText}>Sex duration</Text>
-      </View>
+      </AnimatedView>
 
       {/* Graph Container */}
       <View style={styles.graphContainer}>
@@ -77,57 +184,86 @@ export const Graph: React.FC = () => {
         <View style={styles.yAxis} />
         <View style={styles.xAxis} />
 
+        {/* Glow effect behind green line - ANIMATED */}
+        <AnimatedView style={[styles.glow, glowStyle]} />
+
         {/* SVG Graph */}
         <Svg width="100%" height="100%" style={styles.svg}>
-          {/* Green line - smooth curve going UP */}
-          <Path
+          <Defs>
+            {/* Green gradient */}
+            <LinearGradient id="greenGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+              <Stop offset="0%" stopColor="#22c55e" stopOpacity="1" />
+              <Stop offset="100%" stopColor="#4ade80" stopOpacity="1" />
+            </LinearGradient>
+
+            {/* Red gradient */}
+            <LinearGradient id="redGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+              <Stop offset="0%" stopColor="#ef4444" stopOpacity="1" />
+              <Stop offset="100%" stopColor="#dc2626" stopOpacity="1" />
+            </LinearGradient>
+
+            {/* Radial gradient for dot glow */}
+            <RadialGradient id="dotGlow" cx="50%" cy="50%" r="50%">
+              <Stop offset="0%" stopColor="#ffffff" stopOpacity="1" />
+              <Stop offset="70%" stopColor="#4ade80" stopOpacity="0.6" />
+              <Stop offset="100%" stopColor="#4ade80" stopOpacity="0" />
+            </RadialGradient>
+          </Defs>
+
+          {/* Green line - animated stroke */}
+          <AnimatedPath
             d="M 40 160 C 100 120, 160 70, 220 50 C 250 40, 270 32, 290 35"
-            stroke={COLORS.brandGreen}
-            strokeWidth="3.5"
+            stroke="url(#greenGradient)"
+            strokeWidth="4"
             fill="none"
             strokeLinecap="round"
-            opacity={0.95}
-          />
-          
-          {/* Red line - smooth curve going DOWN */}
-          <Path
-            d="M 40 165 C 100 175, 160 180, 220 185 C 260 188, 280 190, 310 195"
-            stroke={COLORS.brandRed}
-            strokeWidth="3.5"
-            fill="none"
-            strokeLinecap="round"
-            opacity={0.95}
+            strokeDasharray="350"
+            animatedProps={greenAnimatedProps}
           />
 
-          {/* Animated white dot */}
+          {/* Red line - animated stroke */}
+          <AnimatedPath
+            d="M 40 165 C 100 175, 160 180, 220 185 C 260 188, 280 190, 310 195"
+            stroke="url(#redGradient)"
+            strokeWidth="4"
+            fill="none"
+            strokeLinecap="round"
+            strokeDasharray="350"
+            animatedProps={redAnimatedProps}
+          />
+
+          {/* Glowing dot with pulsing animation */}
+          <AnimatedCircle 
+            cx="290" 
+            cy="35" 
+            r="16" 
+            fill="url(#dotGlow)" 
+            animatedProps={dotGlowProps}
+          />
           <AnimatedCircle
-            cx={dotX}
-            cy={dotY}
-            r="8"
+            cx="290"
+            cy="35"
             fill={COLORS.white}
-            opacity={dotOpacity}
+            animatedProps={dotCenterProps}
           />
         </Svg>
 
-        {/* Glow effect behind green line */}
-        <View style={styles.glow} />
-
-        {/* Now Marker */}
-        <View style={styles.nowMarker}>
+        {/* Now Marker - ANIMATED */}
+        <AnimatedView style={[styles.nowMarker, nowMarkerStyle]}>
           <View style={styles.nowLabelContainer}>
             <Text style={styles.nowText}>Now</Text>
           </View>
           <View style={styles.nowArrow} />
-        </View>
+        </AnimatedView>
 
-        {/* 7x Multiplier with Arrow */}
-        <View style={styles.multiplierContainer}>
-          <View style={styles.arrow}>
+        {/* 7x Multiplier with Arrow - ANIMATED */}
+        <AnimatedView style={[styles.multiplierContainer, multiplierContainerStyle]}>
+          <AnimatedView style={[styles.arrow, arrowStyle]}>
             <View style={styles.arrowLine} />
             <View style={styles.arrowHead} />
-          </View>
+          </AnimatedView>
           <Text style={styles.multiplierText}>7x</Text>
-        </View>
+        </AnimatedView>
       </View>
 
       {/* Legend */}
@@ -141,7 +277,7 @@ export const Graph: React.FC = () => {
           <Text style={styles.legendText}>No Kegels</Text>
         </View>
       </View>
-    </Animated.View>
+    </AnimatedView>
   );
 };
 
@@ -213,7 +349,7 @@ const styles = StyleSheet.create({
     right: 20,
     height: 120,
     backgroundColor: COLORS.brandGreen,
-    opacity: 0.08,
+    opacity: 0.15,
     borderRadius: 100,
     transform: [{ scaleX: 2 }],
   },

@@ -1,41 +1,59 @@
-import React, { useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, Animated } from 'react-native';
+import React, { useEffect } from 'react';
+import { View, Text, StyleSheet } from 'react-native';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  withDelay,
+  withSpring,
+  Easing,
+} from 'react-native-reanimated';
 import { COLORS } from '../constants/colors';
 
 export const Source: React.FC = () => {
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-  const translateY = useRef(new Animated.Value(20)).current;
+  const opacity = useSharedValue(0);
+  const translateY = useSharedValue(20);
+  const iconScale = useSharedValue(0.8);
 
   useEffect(() => {
-    Animated.parallel([
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 500,
-        delay: 1700,
-        useNativeDriver: true,
-      }),
-      Animated.timing(translateY, {
-        toValue: 0,
-        duration: 500,
-        delay: 1700,
-        useNativeDriver: true,
-      }),
-    ]).start();
+    // Container fade and slide
+    opacity.value = withDelay(
+      1700,
+      withTiming(1, { duration: 500, easing: Easing.out(Easing.cubic) })
+    );
+    translateY.value = withDelay(
+      1700,
+      withTiming(0, { duration: 500, easing: Easing.out(Easing.cubic) })
+    );
+
+    // Icon pop
+    iconScale.value = withDelay(
+      1900,
+      withSpring(1, {
+        damping: 12,
+        stiffness: 300,
+      })
+    );
   }, []);
 
+  const containerStyle = useAnimatedStyle(() => {
+    return {
+      opacity: opacity.value,
+      transform: [{ translateY: translateY.value }],
+    };
+  });
+
+  const iconStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ scale: iconScale.value }],
+    };
+  });
+
   return (
-    <Animated.View
-      style={[
-        styles.container,
-        {
-          opacity: fadeAnim,
-          transform: [{ translateY }],
-        },
-      ]}
-    >
-      <View style={styles.diamond}>
+    <Animated.View style={[styles.container, containerStyle]}>
+      <Animated.View style={[styles.diamond, iconStyle]}>
         <Text style={styles.diamondIcon}>◊</Text>
-      </View>
+      </Animated.View>
       <View>
         <Text style={styles.label}>Source:</Text>
         <Text style={styles.name}>Sapienza University</Text>
