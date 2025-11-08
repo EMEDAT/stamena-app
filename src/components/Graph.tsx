@@ -36,7 +36,7 @@ export const Graph: React.FC = () => {
       Animated.timing(baselineDraw, { toValue: 1, duration: 700, useNativeDriver: false }),
       Animated.timing(bgGlowOpacity, { toValue: 1, duration: 1200, useNativeDriver: true }),
       Animated.timing(dotAppear, { toValue: 1, duration: 0, useNativeDriver: false }),          // dot appears immediately
-      Animated.timing(topCurveProgress, { toValue: 1, duration: 1500, useNativeDriver: false }), // top curve stroke
+      Animated.timing(topCurveProgress, { toValue: 1, duration: 2200, useNativeDriver: false }), // top curve stroke
     ]).start(() => {
       // Arrow & multiplier after curves start
       Animated.parallel([
@@ -222,19 +222,7 @@ export const Graph: React.FC = () => {
             opacity={1}
           />
 
-          {/* Moving glow dot along top curve (leads the stroke) */}
-          <G>
-            <AnimatedCircle cx={movingCx} cy={movingCy} r={glowRadius} fill="url(#dotGlow)" opacity={dotAppear} />
-            <AnimatedCircle
-              cx={movingCx}
-              cy={movingCy}
-              r={dotPulse.interpolate({ inputRange: [1, 1.15], outputRange: [6, 7.5] })}
-              fill="#FFFFFF"
-              opacity={dotAppear}
-            />
-          </G>
-
-          {/* Starting point icon in SVG (removed to avoid being under curves) */}
+          {/* Removed old moving-dot block here; dot is now inside TopCurve */}
         </Svg>
 
         {/* Right-side bright glow */}
@@ -245,10 +233,19 @@ export const Graph: React.FC = () => {
         {/* Curves */}
         <View pointerEvents="none" style={StyleSheet.absoluteFill}>
           <View style={{ position: 'absolute', left: topLeft, top: topTop, width: topW, height: topH + 18, overflow: 'visible' }}>
-            <TopCurve width={topW} height={topH} progress={topCurveProgress} delay={0} />
+            {/* Drive stroke + dot together; keep a tiny lead inside TopCurve */}
+            <TopCurve
+              width={topW}
+              height={topH}
+              progress={topCurveProgress}
+              lead={0.06}
+              dotPulse={dotPulse}
+              dotOpacity={dotAppear}
+              delay={0}
+            />
           </View>
           <View style={{ position: 'absolute', left: botLeft, top: botTop, width: botW, height: botH }}>
-            <BottomCurve width={botW} height={botH} delay={0} duration={1550} />
+            <BottomCurve width={botW} height={botH} delay={0} duration={2300} />
           </View>
         </View>
 
