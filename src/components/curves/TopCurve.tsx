@@ -131,7 +131,6 @@ export const TopCurve: React.FC<Props> = ({
           <Stop offset="0" stopColor="#000000" stopOpacity={0} />
           <Stop offset="0.45" stopColor="#1AEE0E" stopOpacity={1} />
           <Stop offset="0.74" stopColor="#1AEE0E" stopOpacity={0.85} />
-          <Stop offset="0.95" stopColor="#1AEE0E" stopOpacity={0.6} />
           <Stop offset="1" stopColor="#000000" stopOpacity={0} />
         </LinearGradient>
         <RadialGradient id="dotGlowTop" cx="50%" cy="50%" r="50%">
