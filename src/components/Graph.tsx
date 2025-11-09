@@ -361,14 +361,16 @@ export const Graph: React.FC = () => {
       </View>
 
       {/* Legend */}
-      <View style={styles.legend}>
-        <View style={styles.legendItem}>
-          <View style={[styles.legendSwatch, { backgroundColor: COLORS.brandGreen }]} />
-          <Text style={styles.legendText}>With Kegels</Text>
-        </View>
-        <View style={styles.legendItem}>
-          <View style={[styles.legendSwatch, { backgroundColor: COLORS.brandRed }]} />
-          <Text style={styles.legendText}>No Kegels</Text>
+      <View style={[styles.legendContainer, { width: GRAPH_WIDTH - 40 }]}> 
+        <View style={styles.legendRow}>
+          <View style={styles.legendItem}>
+            <View style={[styles.legendSwatch, { backgroundColor: COLORS.brandGreen }]} />
+            <Text style={styles.legendText}>With Kegels</Text>
+          </View>
+          <View style={styles.legendItem}>
+            <View style={[styles.legendSwatch, { backgroundColor: COLORS.brandRed }]} />
+            <Text style={styles.legendText}>No Kegels</Text>
+          </View>
         </View>
       </View>
     </Animated.View>
@@ -446,9 +448,25 @@ const styles = StyleSheet.create({
   multiplierText: { fontSize: 32, fontWeight: '700', color: COLORS.white, marginLeft: 0, letterSpacing: -1 },
   arrowImage: { width: 50, height: 90 },
 
-  // Legend (unchanged)
-  legend: { flexDirection: 'row', justifyContent: 'center', gap: 32, marginTop: 0 },
-  legendItem: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  // Legend container
+  legendContainer: {
+    alignSelf: 'center',
+    marginTop: 0,
+    backgroundColor: '#0A0B0C',
+    borderColor: '#141518',
+    borderWidth: 1,
+    borderRadius: 16,
+    paddingVertical: 14,
+    paddingHorizontal: 24,
+  },
+  legendRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 32,
+    width: '100%',
+  },
+  legendItem: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   legendSwatch: { width: 16, height: 16, borderRadius: 5 },
   legendText: { fontSize: 15, fontWeight: '600', color: COLORS.white, letterSpacing: 0.2 },
 
