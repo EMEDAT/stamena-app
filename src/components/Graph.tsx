@@ -361,7 +361,7 @@ export const Graph: React.FC = () => {
       </View>
 
       {/* Legend */}
-      <View style={[styles.legendContainer, { width: GRAPH_WIDTH - 40 }]}> 
+  <View style={[styles.legendContainer, { width: GRAPH_WIDTH - 32 }]}> 
         <View style={styles.legendRow}>
           <View style={styles.legendItem}>
             <View style={[styles.legendSwatch, { backgroundColor: COLORS.brandGreen }]} />
@@ -380,8 +380,8 @@ export const Graph: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     // bring graph down away from headline
-    marginTop: 24,
-    marginBottom: 20,
+    marginTop: 14,
+    marginBottom: 0,
     overflow: 'visible',
   },
   graphWrapper: {
@@ -452,8 +452,8 @@ const styles = StyleSheet.create({
   legendContainer: {
     alignSelf: 'center',
     marginTop: 0,
-    backgroundColor: '#0A0B0C',
-    borderColor: '#141518',
+    backgroundColor: COLORS.gray[900],
+    borderColor: COLORS.gray[850],
     borderWidth: 1,
     borderRadius: 16,
     paddingVertical: 14,
