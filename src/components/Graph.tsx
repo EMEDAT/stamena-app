@@ -214,12 +214,11 @@ export const Graph: React.FC = () => {
               <Stop offset="100%" stopColor="#1AEE0F" stopOpacity="0" />
             </RadialGradient>
             <LinearGradient id="xAxisGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-              <Stop offset="0%" stopColor="#ffffffff" stopOpacity="1" />
+              <Stop offset="0%" stopColor="#ffffffff" stopOpacity="0.9" />
               <Stop offset="10%" stopColor="#ffffffff" stopOpacity="0.75" />
-              <Stop offset="20%" stopColor="#ffffffff" stopOpacity="0.65" />
               <Stop offset="30%" stopColor="#ffffffff" stopOpacity="0.55" />
-              <Stop offset="50%" stopColor="#FFFFFF" stopOpacity="0.45" />
-              <Stop offset="70%" stopColor="#FFFFFF" stopOpacity="0.45" />
+              <Stop offset="50%" stopColor="#FFFFFF" stopOpacity="1" />
+              <Stop offset="70%" stopColor="#FFFFFF" stopOpacity="1" />
               <Stop offset="100%" stopColor="#FFFFFF" stopOpacity="0" />
             </LinearGradient>
             <LinearGradient id="gridLineGrad" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -255,16 +254,16 @@ export const Graph: React.FC = () => {
         </Svg>
 
         {/* Right-side bright glow */}
-        <Animated.View style={[styles.bgGlowWrapper, { opacity: bgGlowOpacity }]}>
-          <Image source={bgGlow} style={styles.bgGlow} resizeMode="cover" />
-        </Animated.View>
-        {/* Right-side bright glow */}
-        <Animated.View style={[styles.bgGlowWrapper, { opacity: bgGlowOpacity }]}>
+        <Animated.View style={[styles.bgGlowWrapper, { opacity: bgGlowOpacity }]}> 
           <Image source={bgGlow} style={[styles.bgGlow, { opacity: 1 }]} resizeMode="cover" />
         </Animated.View>
-          {/* Right-side bright glow */}
-        <Animated.View style={[styles.bgGlowWrapper, { opacity: bgGlowOpacity }]}>
-          <Image source={bgGlow} style={[styles.bgGlow, { opacity: 1 }]} resizeMode="cover" />
+        {/* Secondary soft glow */}
+        <Animated.View style={[styles.bgGlowWrapper, styles.bgGlowWrapperMid, { opacity: bgGlowOpacity }]}> 
+          <Image source={bgGlow} style={[styles.bgGlow, { opacity: 0.8 }]} resizeMode="cover" />
+        </Animated.View>
+        {/* Bottom-muted glow */}
+        <Animated.View style={[styles.bgGlowWrapperLow, { opacity: bgGlowOpacity }]}> 
+          <Image source={bgGlow} style={[styles.bgGlow, { opacity: 0.1 }]} resizeMode="cover" />
         </Animated.View>
 
         {/* Curves */}
@@ -414,12 +413,24 @@ const styles = StyleSheet.create({
   bgGlowWrapper: {
     position: 'absolute',
     top: -100,
-    right: -120,
-    bottom: -120,
-    left: -20,
+    right: -20,
+    bottom: -10,
+    left: -10,
     width: '120%',
   },
-  bgGlow: { width: '100%', height: '100%' },
+  bgGlowWrapperMid: {
+    top: -160,
+    right: -50,
+    bottom: -10,
+    left: -50,
+  },
+  bgGlowWrapperLow: {
+    top: 50,
+    right: 50,
+    bottom: 50,
+    left: 1000,
+  },
+  bgGlow: { width: '100%', height: '120%' },
 
   // Now bubble
   nowWrapper: { position: 'absolute', alignItems: 'center' },
@@ -436,7 +447,7 @@ const styles = StyleSheet.create({
   arrowImage: { width: 50, height: 90 },
 
   // Legend (unchanged)
-  legend: { flexDirection: 'row', justifyContent: 'center', gap: 32, marginTop: 20 },
+  legend: { flexDirection: 'row', justifyContent: 'center', gap: 32, marginTop: 0 },
   legendItem: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   legendSwatch: { width: 16, height: 16, borderRadius: 5 },
   legendText: { fontSize: 15, fontWeight: '600', color: COLORS.white, letterSpacing: 0.2 },
