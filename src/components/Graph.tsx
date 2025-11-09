@@ -399,7 +399,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#14171F',
     borderRadius: 14,
-    paddingHorizontal: 20,
+    paddingHorizontal: 18,
     paddingVertical: 12,
     gap: 8,
   },
@@ -451,9 +451,9 @@ const styles = StyleSheet.create({
   // Legend container
   legendContainer: {
     alignSelf: 'center',
-    marginTop: 0,
-    backgroundColor: COLORS.gray[900],
-    borderColor: COLORS.gray[850],
+    marginTop: -15,
+    backgroundColor: '#0A0B0C',
+    borderColor: '#141518',
     borderWidth: 1,
     borderRadius: 16,
     paddingVertical: 14,
