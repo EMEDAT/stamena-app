@@ -46,9 +46,9 @@ export const TopCurve: React.FC<Props> = ({
     ]).start();
   }, [delay, duration, progress]);
 
-  const strokeW = 18;
+  const strokeW = 12;
   // Same path as used in Graph (with initial h & c then absolute C)
-  const pathD = 'M6 112h29.029c14.695 0 29.515-1.658 43.15-7.14C159.137 72.31 174-12 390-10h44';
+  const pathD = 'M6 112h29.029c14.695 0 29.515-1.658 43.15-7.14C159.137 72.31 179 5 416 5h44';
 
   const vbW = 350;
   const vbH = 124;
@@ -57,7 +57,7 @@ export const TopCurve: React.FC<Props> = ({
   const scaleY = height / vbH;
 
   const strokeDriver = (progress ?? internal) as Animated.Value;
-  const pathTravelFactor = 0.85; // dot stops at 85% of path
+  const pathTravelFactor = 0.79; // dot stops at 85% of path
 
   // Base driver for dot (external override wins). Clamp to finish early so stroke can keep flowing.
   const dotBase = (dotProgress ?? strokeDriver) as Animated.Value;
@@ -81,7 +81,7 @@ export const TopCurve: React.FC<Props> = ({
     extrapolate: 'clamp',
   });
 
-  // Precompute samples (two cubics) in viewBox space so we can measure the path length dynamically
+  // Precompute samples (two cubics + final line) in viewBox space so we can measure the path length dynamically
   const tArray = useMemo(() => Array.from({ length: 60 }, (_, i) => i / 59), []);
   const cubic = (p0: number, p1: number, p2: number, p3: number, t: number) =>
     (1 - t) ** 3 * p0 +
@@ -96,30 +96,56 @@ export const TopCurve: React.FC<Props> = ({
         x: [6, 35.029, 49.724, 78.179] as [number, number, number, number],
         y: [112, 112, 110.342, 104.86] as [number, number, number, number],
       },
-      // Second cubic (absolute C): (78.179,104.86)->(159.137,72.31)->(174,-12)->(390,-10)
+      // Second cubic (absolute C): (78.179,104.86)->(159.137,72.31)->(179,5)->(416,5)
       {
-        x: [78.179, 159.137, 174, 390] as [number, number, number, number],
-        y: [104.86, 72.31, -12, -10] as [number, number, number, number],
+        x: [78.179, 159.137, 179, 416] as [number, number, number, number],
+        y: [104.86, 72.31, 5, 5] as [number, number, number, number],
+      },
+      // Final straight segment (h44): treat as degenerate cubic for uniform sampling
+      {
+        x: [416, 416, 460, 460] as [number, number, number, number],
+        y: [5, 5, 5, 5] as [number, number, number, number],
       },
     ],
     []
   );
 
-  const split = 140 / (140 + 320); // segment weighting approx. for new tail
+  const segmentBreaks = useMemo(() => {
+    const weights = [140, 320, 44];
+    const total = weights.reduce((sum, weight) => sum + weight, 0);
+    const cumulative: number[] = [];
+    weights.reduce((acc, weight) => {
+      const next = acc + weight / total;
+      cumulative.push(next);
+      return next;
+    }, 0);
+    return cumulative;
+  }, []);
+  const firstBreak = segmentBreaks[0] ?? 1;
+  const secondBreak = segmentBreaks[1] ?? 1;
+  const safeFirstBreak = firstBreak > 0 ? firstBreak : Number.EPSILON;
+  const safeMiddleSpan = secondBreak - firstBreak > 0 ? secondBreak - firstBreak : Number.EPSILON;
+  const safeFinalSpan = 1 - secondBreak > 0 ? 1 - secondBreak : Number.EPSILON;
   const getPoint = useCallback(
     (T: number) => {
-      if (T <= split) {
-        const s = T / split;
+      if (T <= firstBreak) {
+        const s = T / safeFirstBreak;
         const [x0, x1, x2, x3] = segs[0].x;
         const [y0, y1, y2, y3] = segs[0].y;
         return { x: cubic(x0, x1, x2, x3, s), y: cubic(y0, y1, y2, y3, s) };
       }
-      const s = (T - split) / (1 - split);
-      const [x0, x1, x2, x3] = segs[1].x;
-      const [y0, y1, y2, y3] = segs[1].y;
+      if (T <= secondBreak) {
+        const s = (T - firstBreak) / safeMiddleSpan;
+        const [x0, x1, x2, x3] = segs[1].x;
+        const [y0, y1, y2, y3] = segs[1].y;
+        return { x: cubic(x0, x1, x2, x3, s), y: cubic(y0, y1, y2, y3, s) };
+      }
+      const s = (T - secondBreak) / safeFinalSpan;
+      const [x0, x1, x2, x3] = segs[2].x;
+      const [y0, y1, y2, y3] = segs[2].y;
       return { x: cubic(x0, x1, x2, x3, s), y: cubic(y0, y1, y2, y3, s) };
     },
-    [segs, split]
+    [cubic, firstBreak, safeFinalSpan, safeFirstBreak, safeMiddleSpan, secondBreak, segs]
   );
 
   const pts = useMemo(() => tArray.map((T) => getPoint(T)), [getPoint, tArray]);
@@ -184,17 +210,17 @@ export const TopCurve: React.FC<Props> = ({
           gradientUnits="userSpaceOnUse"
         >
           <Stop offset="0" stopColor="#000000" stopOpacity={0} />
-          <Stop offset="0.5" stopColor="#1AEE0E" stopOpacity={1} />
-          <Stop offset="0.58" stopColor="#1AEE0E" stopOpacity={0.9} />
-          <Stop offset="0.65" stopColor="#1AEE0E" stopOpacity={0.9} />
-          <Stop offset="0.75" stopColor="#287d22ff" stopOpacity={0.75} />
-          <Stop offset="0.8" stopColor="#287d22ff" stopOpacity={0.5} />
+          <Stop offset="0.37" stopColor="#30cc28ff" stopOpacity={0.9} />
+          <Stop offset="0.58" stopColor="#1AEE0E" stopOpacity={1} />
+          <Stop offset="0.65" stopColor="#1AEE0E" stopOpacity={1} />
+          <Stop offset="0.75" stopColor="#1bd711ff" stopOpacity={0.95} />
+          <Stop offset="0.9" stopColor="#2f882aff" stopOpacity={0.6} />
           <Stop offset="1" stopColor="#000000" stopOpacity={0} />
         </LinearGradient>
         <RadialGradient id="dotGlowTop" cx="50%" cy="50%" r="50%">
-          <Stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.85" />
-          <Stop offset="60%" stopColor="#1AEE0F" stopOpacity="0.5" />
-          <Stop offset="100%" stopColor="#1AEE0F" stopOpacity="0.2" />
+          <Stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.6" />
+          <Stop offset="60%" stopColor="#1AEE0F" stopOpacity="0.6" />
+          <Stop offset="100%" stopColor="#1AEE0F" stopOpacity="0.6" />
         </RadialGradient>
       </Defs>
 
@@ -213,8 +239,8 @@ export const TopCurve: React.FC<Props> = ({
 
       {/* Dot over the stroke in pixel space */}
       <G>
-    <AnimatedCircle cx={movingCxPx} cy={movingCyPx} r={16.5} fill="url(#dotGlowTop)" opacity={1} />
-    <AnimatedCircle cx={movingCxPx} cy={movingCyPx} r={10} fill="#FFFFFF" opacity={dotOpacity ?? 1} />
+    <AnimatedCircle cx={movingCxPx} cy={movingCyPx} r={15} fill="url(#dotGlowTop)" opacity={1} />
+    <AnimatedCircle cx={movingCxPx} cy={movingCyPx} r={8} fill="#FFFFFF" opacity={dotOpacity ?? 1} />
       </G>
     </Svg>
   );

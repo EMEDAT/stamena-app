@@ -2,7 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, Animated, Dimensions, Image, Easing } from 'react-native';
 import Svg, { Path, Circle, Defs, LinearGradient, Stop, G, RadialGradient } from 'react-native-svg';
 import { COLORS } from '../constants/colors';
-const bgGlow = require('../../assets/backgroundGradient.png');
+import { BackgroundGlow } from './gradients/BackgroundGlow';
 const clockIcon = require('../../assets/clock.png');
 import { TopCurve } from './curves/TopCurve';
 import { BottomCurve } from './curves/BottomCurve';
@@ -13,7 +13,7 @@ const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
 const { width: screenWidth } = Dimensions.get('window');
 const GRAPH_WIDTH = screenWidth;
-const GRAPH_HEIGHT = 230;
+const GRAPH_HEIGHT = 245;
 
 export const Graph: React.FC = () => {
   // Animation values
@@ -92,15 +92,15 @@ export const Graph: React.FC = () => {
   // Adjust how far DOWN the arrow+7x sits relative to the hatch line.
   // Positive value moves it lower (toward the bottom of the screen).
   const ARROW_WIDTH = 45;  // change to make the arrow wider
-  const ARROW_HEIGHT = 125; // change to make the arrow taller
+  const ARROW_HEIGHT = 120; // change to make the arrow taller
   const ARROW_LOWER = 45; // tweak this number to move the arrow+text down/up
   const MULTIPLIER_FONT_SIZE = 18; // adjust this to change "7x" font size
   const MULTIPLIER_TEXT_Y = -55; // positive moves "7x" lower relative to arrow base
 
   const nowDotX = startX + 45;
   const nowDotY = hatchY;
-  const nowOuterR = 14;
-  const nowInnerR = 7;
+  const nowOuterR = 12;
+  const nowInnerR = 5;
 
   // Determine target apex Y (between top grid line and second-to-top grid line)
   const topLineY = gridYs[gridCount - 1];
@@ -110,7 +110,11 @@ export const Graph: React.FC = () => {
 
   // --- Curve positioning (add backward offset so path starts behind the dot) ---
   const CURVE_BACK_OFFSET = 28; // pixels to push the actual path start behind the visible starting dot
-  const TOP_CURVE_Y_OFFSET = 18; // matches internal padding to avoid clipping at apex
+  const TOP_CURVE_BASE_OFFSET = 88; // matches internal padding to avoid clipping at apex
+  const TOP_CURVE_STROKE_LIFT = 14; // positive raises the rendered start of the stroke
+  const START_DOT_LIFT = 0; // positive raises the static start dot & bubble; tweak independently
+  const topCurveYOffset = TOP_CURVE_BASE_OFFSET;
+  const topCurveStrokeYOffset = topCurveYOffset - TOP_CURVE_STROKE_LIFT;
 
   // Curve sizing (remove vertical scaling math that could clip)
   const TOP_VB = { w: 350, h: 124, startX: 6, startY: 108 };
@@ -124,9 +128,9 @@ export const Graph: React.FC = () => {
   const originalApexY = nowDotY - 106;
   const raiseOffset = originalApexY - targetApexY; // positive => move curve up
   // Apply raise: shift entire curve upward by raiseOffset
-  const CURVE_RIGHT_NUDGE = 26; // positive → move curve right
+  const CURVE_RIGHT_NUDGE = 6; // positive → move curve right
   const topLeft = nowDotX - topScaleX * TOP_VB.startX - CURVE_BACK_OFFSET + CURVE_RIGHT_NUDGE;
-  const topTop  = nowDotY - TOP_VB.startY - raiseOffset - TOP_CURVE_Y_OFFSET;
+  const topTop  = nowDotY - TOP_VB.startY - raiseOffset - topCurveYOffset;
 
   // Define bottom curve viewBox + start (fix TS error)
   const BOT_VB = { w: 318, h: 76, startX: 6, startY: 6.1253 };
@@ -140,8 +144,8 @@ export const Graph: React.FC = () => {
   const botTop  = nowDotY - botScaleY * BOT_VB.startY;
 
   // Use the exact path structure of TopCurve for the moving dot:
-  // M6 112 H35.029 C49.724 112 64.544 110.342 78.179 104.86 C159.137 72.31 169.648 6 346 6
-  // Combine H + first C into a single cubic, then the second C as-is.
+  // M6 112 H35.029 C49.724 112 64.544 110.342 78.179 104.86 C159.137 72.31 179 5 416 5 H44
+  // Combine H + first C into a single cubic, then the second C and final line segment.
   const cubic = (p0: number, p1: number, p2: number, p3: number, t: number) =>
     (1 - t) ** 3 * p0 +
     3 * (1 - t) ** 2 * t * p1 +
@@ -152,27 +156,46 @@ export const Graph: React.FC = () => {
     // First cubic: from (6,112) -> (78.179,104.86)
     { x: [6, 35.029, 49.724, 78.179] as [number, number, number, number],
       y: [112, 112, 110.342, 104.86] as [number, number, number, number] },
-    // Second cubic: from (78.179,104.86) -> (390,-10)
-    { x: [78.179, 159.137, 174, 390] as [number, number, number, number],
-      y: [104.86, 72.31, -12, -10] as [number, number, number, number] },
+    // Second cubic: from (78.179,104.86) -> (416,5)
+    { x: [78.179, 159.137, 179, 416] as [number, number, number, number],
+      y: [104.86, 72.31, 5, 5] as [number, number, number, number] },
+    // Final straight segment: (416,5) -> (460,5)
+    { x: [416, 416, 460, 460] as [number, number, number, number],
+      y: [5, 5, 5, 5] as [number, number, number, number] },
   ];
 
   const samples = 40;
   const tArray = Array.from({ length: samples }, (_, i) => i / (samples - 1));
-  // Approximate segment weights so timing feels even
-  const len1 = 140, len2 = 260, totalLen = len1 + len2;
-  const split = len1 / totalLen;
+  // Approximate segment weights so timing feels even across the full spline
+  const segmentWeights = [140, 320, 44];
+  const totalLen = segmentWeights.reduce((sum, weight) => sum + weight, 0);
+  const cumulativeWeights = segmentWeights.reduce<number[]>((acc, weight) => {
+    const prev = acc.length === 0 ? 0 : acc[acc.length - 1];
+    acc.push(prev + weight / totalLen);
+    return acc;
+  }, []);
+  const firstBreak = cumulativeWeights[0] ?? 1;
+  const secondBreak = cumulativeWeights[1] ?? 1;
+  const safeFirstBreak = firstBreak > 0 ? firstBreak : Number.EPSILON;
+  const safeMiddleSpan = secondBreak - firstBreak > 0 ? secondBreak - firstBreak : Number.EPSILON;
+  const safeFinalSpan = 1 - secondBreak > 0 ? 1 - secondBreak : Number.EPSILON;
 
   const pts = tArray.map((T) => {
-    if (T <= split) {
-      const s = T / split;
+    if (T <= firstBreak) {
+      const s = T / safeFirstBreak;
       const [x0, x1, x2, x3] = segs[0].x;
       const [y0, y1, y2, y3] = segs[0].y;
       return { x: cubic(x0, x1, x2, x3, s), y: cubic(y0, y1, y2, y3, s) };
     } else {
-      const s = (T - split) / (1 - split);
-      const [x0, x1, x2, x3] = segs[1].x;
-      const [y0, y1, y2, y3] = segs[1].y;
+      if (T <= secondBreak) {
+        const s = (T - firstBreak) / safeMiddleSpan;
+        const [x0, x1, x2, x3] = segs[1].x;
+        const [y0, y1, y2, y3] = segs[1].y;
+        return { x: cubic(x0, x1, x2, x3, s), y: cubic(y0, y1, y2, y3, s) };
+      }
+      const s = (T - secondBreak) / safeFinalSpan;
+      const [x0, x1, x2, x3] = segs[2].x;
+      const [y0, y1, y2, y3] = segs[2].y;
       return { x: cubic(x0, x1, x2, x3, s), y: cubic(y0, y1, y2, y3, s) };
     }
   });
@@ -197,6 +220,8 @@ export const Graph: React.FC = () => {
     outputRange: dotYArray,
     extrapolate: 'clamp',
   });
+  const startPointY = nowDotY - START_DOT_LIFT;
+
 
   const glowRadius = glowPulse.interpolate({
     inputRange: [0, 1],
@@ -214,11 +239,11 @@ export const Graph: React.FC = () => {
               <Stop offset="100%" stopColor="#1AEE0F" stopOpacity="0" />
             </RadialGradient>
             <LinearGradient id="xAxisGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-              <Stop offset="0%" stopColor="#ffffffff" stopOpacity="0.9" />
-              <Stop offset="10%" stopColor="#ffffffff" stopOpacity="0.75" />
-              <Stop offset="30%" stopColor="#ffffffff" stopOpacity="0.55" />
-              <Stop offset="50%" stopColor="#FFFFFF" stopOpacity="1" />
-              <Stop offset="70%" stopColor="#FFFFFF" stopOpacity="1" />
+              <Stop offset="0%" stopColor="#ffffffff" stopOpacity="1" />
+              <Stop offset="10%" stopColor="#ffffffff" stopOpacity="1" />
+              <Stop offset="30%" stopColor="#ffffffff" stopOpacity="0.9" />
+              <Stop offset="50%" stopColor="#FFFFFF" stopOpacity="0.8" />
+              <Stop offset="70%" stopColor="#FFFFFF" stopOpacity="0.7" />
               <Stop offset="100%" stopColor="#FFFFFF" stopOpacity="0" />
             </LinearGradient>
             <LinearGradient id="gridLineGrad" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -235,9 +260,9 @@ export const Graph: React.FC = () => {
           ))}
 
           {/* Axes */}
-          <Path d={`M ${startX} ${startY} V ${topPadding - 3}`} stroke="#FFFFFF" strokeWidth={2} strokeLinecap="round" />
-          <Path d={`M ${startX - 9} ${topPadding + 6} L ${startX} ${topPadding - 6} L ${startX +9} ${topPadding + 6}`} stroke="#FFFFFF" strokeWidth={2} strokeLinecap="round" fill="none" />
-          <Path d={`M ${startX} ${startY} H ${endX}`} stroke="url(#xAxisGrad)" strokeWidth={2} strokeLinecap="round" />
+          <Path d={`M ${startX} ${startY} V ${topPadding - 3}`} stroke="#FFFFFF" strokeWidth={3} strokeLinecap="round" />
+          <Path d={`M ${startX - 9} ${topPadding + 6} L ${startX} ${topPadding - 6} L ${startX +9} ${topPadding + 6}`} stroke="#FFFFFF" strokeWidth={3} strokeLinecap="round" fill="none" />
+          <Path d={`M ${startX} ${startY} H ${endX}`} stroke="url(#xAxisGrad)" strokeWidth={3} strokeLinecap="round" />
 
           {/* Hatched line */}
           <AnimatedPath
@@ -254,16 +279,8 @@ export const Graph: React.FC = () => {
         </Svg>
 
         {/* Right-side bright glow */}
-        <Animated.View style={[styles.bgGlowWrapper, { opacity: bgGlowOpacity }]}> 
-          <Image source={bgGlow} style={[styles.bgGlow, { opacity: 1 }]} resizeMode="cover" />
-        </Animated.View>
-        {/* Secondary soft glow */}
-        <Animated.View style={[styles.bgGlowWrapper, styles.bgGlowWrapperMid, { opacity: bgGlowOpacity }]}> 
-          <Image source={bgGlow} style={[styles.bgGlow, { opacity: 0.8 }]} resizeMode="cover" />
-        </Animated.View>
-        {/* Bottom-muted glow */}
-        <Animated.View style={[styles.bgGlowWrapperLow, { opacity: bgGlowOpacity }]}> 
-          <Image source={bgGlow} style={[styles.bgGlow, { opacity: 0.1 }]} resizeMode="cover" />
+        <Animated.View style={[styles.bgGlowWrapper, { opacity: bgGlowOpacity }]} pointerEvents="none">
+          <BackgroundGlow style={styles.bgGlow} opacity={0.4} />
         </Animated.View>
 
         {/* Curves */}
@@ -279,7 +296,7 @@ export const Graph: React.FC = () => {
               dotOpacity={dotPulse}
               dotProgress={dotProgress}
               delay={0}
-              yOffset={TOP_CURVE_Y_OFFSET}
+              yOffset={topCurveStrokeYOffset}
             />
           </View>
           <View style={{ position: 'absolute', left: botLeft, top: botTop, width: botW, height: botH }}>
@@ -294,7 +311,7 @@ export const Graph: React.FC = () => {
             styles.startDot,
             {
               left: nowDotX - nowOuterR,
-              top: nowDotY - nowOuterR,
+              top: startPointY - nowOuterR,
               width: nowOuterR * 2,
               height: nowOuterR * 2,
               borderRadius: nowOuterR,
@@ -313,7 +330,7 @@ export const Graph: React.FC = () => {
         </View>
 
         {/* Now bubble */}
-        <View style={[styles.nowWrapper, { left: nowDotX - 32, top: nowDotY - 62 }]}>
+        <View style={[styles.nowWrapper, { left: nowDotX - 32, top: startPointY - 62 }]}>
           <View style={styles.nowBubble}>
             <Text style={styles.nowText}>Now</Text>
           </View>
@@ -399,40 +416,28 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#14171F',
     borderRadius: 14,
-    paddingHorizontal: 18,
-    paddingVertical: 12,
-    gap: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 8,
+    gap: 10,
   },
   clock: { width: 17, height: 17, tintColor: COLORS.white },
   labelText: {
     fontSize: 14,
     fontWeight: '500',
     color: COLORS.white,
-    letterSpacing: 0.2,
+    letterSpacing: 0.8,
   },
 
   // Bright right-side glow larger coverage
   bgGlowWrapper: {
     position: 'absolute',
-    top: -100,
+    top: -200,
     right: -20,
     bottom: -10,
     left: -10,
     width: '120%',
   },
-  bgGlowWrapperMid: {
-    top: -160,
-    right: -50,
-    bottom: -10,
-    left: -50,
-  },
-  bgGlowWrapperLow: {
-    top: 50,
-    right: 50,
-    bottom: 50,
-    left: 1000,
-  },
-  bgGlow: { width: '100%', height: '120%' },
+  bgGlow: { width: '100%', height: '100%' },
 
   // Now bubble
   nowWrapper: { position: 'absolute', alignItems: 'center' },

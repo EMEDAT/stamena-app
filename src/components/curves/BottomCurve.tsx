@@ -43,7 +43,7 @@ export const BottomCurve: React.FC<Props> = ({ width, height, delay = 400, durat
           gradientUnits="userSpaceOnUse"
         >
           <Stop offset="0%" stopColor="#000000" stopOpacity={0} />
-          <Stop offset="22%" stopColor="#1AEE0F" stopOpacity={1} />
+          <Stop offset="22%" stopColor="#0ff803ff" stopOpacity={1} />
           <Stop offset="73%" stopColor="#EE0F0F" stopOpacity={1} />
           <Stop offset="100%" stopColor="#EE0F0F" stopOpacity={0} />
         </LinearGradient>
@@ -53,7 +53,7 @@ export const BottomCurve: React.FC<Props> = ({ width, height, delay = 400, durat
         <AnimatedPath
           d={pathD}
           stroke="url(#bottomCurveGradient)"
-          strokeWidth={18}
+          strokeWidth={12}
           strokeLinecap="round"
           fill="none"
           strokeOpacity={0.79}

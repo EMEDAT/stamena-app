@@ -62,7 +62,7 @@ export const Button: React.FC = () => {
           <Defs>
             <SvgLinearGradient id="footerGradient" x1="50%" y1="0%" x2="50%" y2="100%">
               <Stop offset="0%" stopColor="#040605" />
-              <Stop offset="100%" stopColor="#181c23ff" />
+              <Stop offset="100%" stopColor="#161920ff" />
             </SvgLinearGradient>
           </Defs>
           <Rect width="100%" height="100%" fill="url(#footerGradient)" />
