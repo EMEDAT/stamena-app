@@ -13,7 +13,7 @@ const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
 const { width: screenWidth } = Dimensions.get('window');
 const GRAPH_WIDTH = screenWidth;
-const GRAPH_HEIGHT = 270;
+const GRAPH_HEIGHT = 230;
 
 export const Graph: React.FC = () => {
   // Animation values
@@ -453,7 +453,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     marginTop: -15,
     backgroundColor: '#0A0B0C',
-    borderColor: '#141518',
+    borderColor: '#202126ff',
     borderWidth: 1,
     borderRadius: 16,
     paddingVertical: 14,

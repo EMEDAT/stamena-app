@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Text, StyleSheet, Pressable, Dimensions } from 'react-native';
+import { Text, StyleSheet, Pressable, Dimensions, View } from 'react-native';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -9,6 +9,7 @@ import Animated, {
   interpolate,
 } from 'react-native-reanimated';
 import { COLORS } from '../constants/colors';
+import Svg, { Defs, LinearGradient as SvgLinearGradient, Stop, Rect } from 'react-native-svg';
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 const AnimatedContainer = Animated.View;
@@ -55,7 +56,18 @@ export const Button: React.FC = () => {
   };
 
   return (
-    <AnimatedContainer style={[styles.container, containerAnimatedStyle, { width: screenWidth }]}> 
+    <AnimatedContainer style={[styles.container, containerAnimatedStyle, { width: screenWidth }]}>
+      <View style={styles.gradientOverlay} pointerEvents="none">
+        <Svg width="100%" height="100%">
+          <Defs>
+            <SvgLinearGradient id="footerGradient" x1="50%" y1="0%" x2="50%" y2="100%">
+              <Stop offset="0%" stopColor="#040605" />
+              <Stop offset="100%" stopColor="#181c23ff" />
+            </SvgLinearGradient>
+          </Defs>
+          <Rect width="100%" height="100%" fill="url(#footerGradient)" />
+        </Svg>
+      </View>
       <AnimatedPressable
         style={[styles.button, buttonAnimatedStyle]}
         onPressIn={handlePressIn}
@@ -80,7 +92,7 @@ const styles = StyleSheet.create({
     paddingTop: 13,
     paddingBottom: 50,
     paddingHorizontal: 12,
-    backgroundColor: '#121517',
+    backgroundColor: 'transparent',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     borderBottomLeftRadius: 0,
@@ -90,6 +102,14 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.4,
     shadowRadius: 28,
     elevation: 16,
+  },
+  gradientOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 0,
+    overflow: 'hidden',
   },
   button: {
     width: '100%',

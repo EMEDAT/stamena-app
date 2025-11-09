@@ -18,9 +18,9 @@ export default function App() {
           <Defs>
             <LinearGradient id="pageGradient" x1="0%" y1="0%" x2="0%" y2="100%">
               <Stop offset="0%" stopColor="#000000" />
-              <Stop offset="80%" stopColor="#000000" />
-              <Stop offset="90%" stopColor="#2A2F37" />
-              <Stop offset="100%" stopColor="#2A2F37" />
+              <Stop offset="70%" stopColor="#000000" />
+              <Stop offset="90%" stopColor="#252930ff" />
+              <Stop offset="100%" stopColor="#252930ff" />
             </LinearGradient>
           </Defs>
           <Rect x="0" y="0" width="100%" height="100%" fill="url(#pageGradient)" />
@@ -49,7 +49,7 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     paddingHorizontal: 16,
-    paddingTop: 20,
+    paddingTop: 50,
     paddingBottom: 0,
     justifyContent: 'space-between',
   },
