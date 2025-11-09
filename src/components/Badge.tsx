@@ -36,7 +36,7 @@ export const Badge: React.FC = () => {
           </Animated.View>
         </Animated.View>
 
-        <Text style={styles.text}>Label</Text>
+        <Text style={styles.text}>STUDY FACT</Text>
       </Animated.View>
     </View>
   );

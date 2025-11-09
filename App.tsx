@@ -49,7 +49,7 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     paddingHorizontal: 16,
-    paddingTop: 30,
+    paddingTop: 50,
     paddingBottom: 0,
     justifyContent: 'space-between',
   },
