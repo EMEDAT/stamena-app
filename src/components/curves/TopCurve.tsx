@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { Animated } from 'react-native';
 import Svg, { Path, Defs, LinearGradient, Stop, G, RadialGradient, Circle } from 'react-native-svg';
 
@@ -20,6 +20,7 @@ interface Props {
   dotOpacity?: Animated.Value;
   dotProgress?: Animated.Value | Animated.AnimatedInterpolation<number>;
   dotXOffset?: number; // pixel shift to align start when curve is shifted left
+  yOffset?: number; // positive value adds top padding inside the svg
 }
 
 export const TopCurve: React.FC<Props> = ({
@@ -33,6 +34,7 @@ export const TopCurve: React.FC<Props> = ({
   dotOpacity,
   dotProgress,
   dotXOffset = 0,
+  yOffset = 0,
 }) => {
   const internal = useRef(new Animated.Value(0)).current;
 
@@ -46,16 +48,16 @@ export const TopCurve: React.FC<Props> = ({
 
   const strokeW = 18;
   // Same path as used in Graph (with initial h & c then absolute C)
-  const pathD = 'M6 112h29.029c14.695 0 29.515-1.658 43.15-7.14C159.137 72.31 169.648 6 346 6';
+  const pathD = 'M6 112h29.029c14.695 0 29.515-1.658 43.15-7.14C159.137 72.31 174-12 390-10h44';
 
-  const vbW = 352;
-  const vbH = 118;
+  const vbW = 350;
+  const vbH = 124;
 
   const scaleX = width / vbW;
   const scaleY = height / vbH;
 
   const strokeDriver = (progress ?? internal) as Animated.Value;
-  const pathTravelFactor = 0.95; // dot stops at 93% of path
+  const pathTravelFactor = 0.85; // dot stops at 85% of path
 
   // Base driver for dot (external override wins). Clamp to finish early so stroke can keep flowing.
   const dotBase = (dotProgress ?? strokeDriver) as Animated.Value;
@@ -79,16 +81,8 @@ export const TopCurve: React.FC<Props> = ({
     extrapolate: 'clamp',
   });
 
-  // Longer dash so the stroke travels fully to the end
-  const baseLength = 4000;
-  const dashLength = baseLength * ((width / vbW + height / vbH) / 2);
-  const dashOffset = strokeDriver.interpolate({
-    inputRange: [0, 1],
-    outputRange: [dashLength, 0],
-  });
-
-  // Precompute samples (two cubics) in viewBox space
-  const tArray = useMemo(() => Array.from({ length: 50 }, (_, i) => i / 49), []);
+  // Precompute samples (two cubics) in viewBox space so we can measure the path length dynamically
+  const tArray = useMemo(() => Array.from({ length: 60 }, (_, i) => i / 59), []);
   const cubic = (p0: number, p1: number, p2: number, p3: number, t: number) =>
     (1 - t) ** 3 * p0 +
     3 * (1 - t) ** 2 * t * p1 +
@@ -102,36 +96,62 @@ export const TopCurve: React.FC<Props> = ({
         x: [6, 35.029, 49.724, 78.179] as [number, number, number, number],
         y: [112, 112, 110.342, 104.86] as [number, number, number, number],
       },
-      // Second cubic (absolute C): (78.179,104.86)->(159.137,72.31)->(169.648,6)->(346,6)
+      // Second cubic (absolute C): (78.179,104.86)->(159.137,72.31)->(174,-12)->(390,-10)
       {
-        x: [78.179, 159.137, 169.648, 346] as [number, number, number, number],
-        y: [104.86, 72.31, 6, 6] as [number, number, number, number],
+        x: [78.179, 159.137, 174, 390] as [number, number, number, number],
+        y: [104.86, 72.31, -12, -10] as [number, number, number, number],
       },
     ],
     []
   );
 
-  const split = 140 / (140 + 260); // segment weighting approx.
-  const pts = useMemo(
-    () =>
-      tArray.map((T) => {
-        if (T <= split) {
-          const s = T / split;
-          const [x0, x1, x2, x3] = segs[0].x;
-          const [y0, y1, y2, y3] = segs[0].y;
-          return { x: cubic(x0, x1, x2, x3, s), y: cubic(y0, y1, y2, y3, s) };
-        } else {
-          const s = (T - split) / (1 - split);
-          const [x0, x1, x2, x3] = segs[1].x;
-          const [y0, y1, y2, y3] = segs[1].y;
-          return { x: cubic(x0, x1, x2, x3, s), y: cubic(y0, y1, y2, y3, s) };
-        }
-      }),
-    [segs, split, tArray]
+  const split = 140 / (140 + 320); // segment weighting approx. for new tail
+  const getPoint = useCallback(
+    (T: number) => {
+      if (T <= split) {
+        const s = T / split;
+        const [x0, x1, x2, x3] = segs[0].x;
+        const [y0, y1, y2, y3] = segs[0].y;
+        return { x: cubic(x0, x1, x2, x3, s), y: cubic(y0, y1, y2, y3, s) };
+      }
+      const s = (T - split) / (1 - split);
+      const [x0, x1, x2, x3] = segs[1].x;
+      const [y0, y1, y2, y3] = segs[1].y;
+      return { x: cubic(x0, x1, x2, x3, s), y: cubic(y0, y1, y2, y3, s) };
+    },
+    [segs, split]
   );
+
+  const pts = useMemo(() => tArray.map((T) => getPoint(T)), [getPoint, tArray]);
 
   const xArray = useMemo(() => pts.map((p) => p.x), [pts]);
   const yArray = useMemo(() => pts.map((p) => p.y), [pts]);
+
+  // Compute total stroke length in the rendered coordinate space so the dash reaches the end
+  const dashLength = useMemo(() => {
+    const steps = 360;
+    let total = 0;
+    let prev = getPoint(0);
+    let prevX = prev.x * scaleX;
+    let prevY = prev.y * scaleY;
+
+    for (let i = 1; i < steps; i++) {
+      const point = getPoint(i / (steps - 1));
+      const x = point.x * scaleX;
+      const y = point.y * scaleY;
+      total += Math.hypot(x - prevX, y - prevY);
+      prevX = x;
+      prevY = y;
+    }
+
+    const margin = Math.max(strokeW * 2.6, width * 0.22);
+    return total + margin;
+  }, [getPoint, scaleX, scaleY, strokeW, width]);
+
+  const dashOffset = strokeDriver.interpolate({
+    inputRange: [0, 1],
+    outputRange: [dashLength, 0],
+  });
 
   const movingCx = dotDriver.interpolate({
     inputRange: tArray,
@@ -146,12 +166,14 @@ export const TopCurve: React.FC<Props> = ({
 
   // Convert path (viewBox) coords to pixel coords for the dot (drawn outside scale)
   const xArrayPx = useMemo(() => xArray.map((x) => x * scaleX + dotXOffset), [xArray, scaleX, dotXOffset]);
-  const yArrayPx = useMemo(() => yArray.map((y) => y + strokeW / 2), [yArray, strokeW]);
+  const yArrayPx = useMemo(() => yArray.map((y) => y + strokeW / 2 + yOffset), [yArray, strokeW, yOffset]);
   const movingCxPx = dotDriver.interpolate({ inputRange: tArray, outputRange: xArrayPx, extrapolate: 'clamp' });
   const movingCyPx = dotDriver.interpolate({ inputRange: tArray, outputRange: yArrayPx, extrapolate: 'clamp' });
 
+  const svgHeight = height + strokeW + yOffset;
+
   return (
-    <Svg width={width} height={height + strokeW} style={{ overflow: 'visible' }}>
+    <Svg width={width} height={svgHeight} style={{ overflow: 'visible' }}>
       <Defs>
         <LinearGradient
           id="topCurveGradient"
@@ -163,8 +185,10 @@ export const TopCurve: React.FC<Props> = ({
         >
           <Stop offset="0" stopColor="#000000" stopOpacity={0} />
           <Stop offset="0.45" stopColor="#1AEE0E" stopOpacity={1} />
+          <Stop offset="0.48" stopColor="#1AEE0E" stopOpacity={0.85} />
           <Stop offset="0.54" stopColor="#1AEE0E" stopOpacity={0.85} />
-          <Stop offset="0.88" stopColor="#287d22ff" stopOpacity={0.85} />
+          <Stop offset="0.75" stopColor="#287d22ff" stopOpacity={0.75} />
+          <Stop offset="0.75" stopColor="#287d22ff" stopOpacity={0.7} />
           <Stop offset="1" stopColor="#000000" stopOpacity={0} />
         </LinearGradient>
         <RadialGradient id="dotGlowTop" cx="50%" cy="50%" r="50%">
@@ -175,22 +199,22 @@ export const TopCurve: React.FC<Props> = ({
       </Defs>
 
       {/* Scaled path group */}
-      <G transform={`translate(0,${strokeW / 2}) scale(${scaleX} ${scaleY})`}>
+      <G transform={`translate(0,${strokeW / 2 + yOffset}) scale(${scaleX} ${scaleY})`}>
         <AnimatedPath
           d={pathD}
           stroke="url(#topCurveGradient)"
           strokeWidth={strokeW}
           strokeLinecap="round"
           fill="none"
-          strokeDasharray={dashLength}
+          strokeDasharray={[dashLength, dashLength]}
           strokeDashoffset={dashOffset}
         />
       </G>
 
       {/* Dot over the stroke in pixel space */}
       <G>
-  <AnimatedCircle cx={movingCxPx} cy={movingCyPx} r={20} fill="url(#dotGlowTop)" opacity={1} />
-        <AnimatedCircle cx={movingCxPx} cy={movingCyPx} r={11} fill="#FFFFFF" opacity={dotOpacity ?? 1} />
+    <AnimatedCircle cx={movingCxPx} cy={movingCyPx} r={16.5} fill="url(#dotGlowTop)" opacity={1} />
+    <AnimatedCircle cx={movingCxPx} cy={movingCyPx} r={10} fill="#FFFFFF" opacity={dotOpacity ?? 1} />
       </G>
     </Svg>
   );

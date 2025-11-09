@@ -79,7 +79,7 @@ export const Headline: React.FC = () => {
 
 const styles = StyleSheet.create({
   headlineGroup: {
-    marginBottom: 24,
+    marginBottom: 34,
   },
   headline: {
     fontSize: 17,

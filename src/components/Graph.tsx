@@ -44,13 +44,13 @@ export const Graph: React.FC = () => {
       Animated.timing(dotAppear, { toValue: 1, duration: 0, useNativeDriver: false }),          // dot appears immediately
       Animated.timing(topCurveProgress, {
         toValue: 1,
-        duration: 16300,
+        duration: 1770,
         easing: Easing.linear,
         useNativeDriver: false,
       }), // top curve stroke (slower so dot leads)
       Animated.timing(dotProgress, {
         toValue: 1,
-        duration: 1420,
+        duration: 1530,
         easing: Easing.linear,
         useNativeDriver: false,
       }), // faster dot travel
@@ -58,7 +58,7 @@ export const Graph: React.FC = () => {
 
     // Arrow appears first, then "7x" types-on (fade + slide) shortly after
     Animated.sequence([
-      Animated.delay(800),
+      Animated.delay(1200),
       Animated.parallel([
         Animated.timing(arrowY, { toValue: 0, duration: 650, easing: Easing.out(Easing.cubic), useNativeDriver: true }),
         Animated.timing(arrowOpacity, { toValue: 1, duration: 480, useNativeDriver: true }),
@@ -92,10 +92,10 @@ export const Graph: React.FC = () => {
   // Adjust how far DOWN the arrow+7x sits relative to the hatch line.
   // Positive value moves it lower (toward the bottom of the screen).
   const ARROW_WIDTH = 45;  // change to make the arrow wider
-  const ARROW_HEIGHT = 130; // change to make the arrow taller
+  const ARROW_HEIGHT = 125; // change to make the arrow taller
   const ARROW_LOWER = 45; // tweak this number to move the arrow+text down/up
-  const MULTIPLIER_FONT_SIZE = 20; // adjust this to change "7x" font size
-  const MULTIPLIER_TEXT_Y = -45; // positive moves "7x" lower relative to arrow base
+  const MULTIPLIER_FONT_SIZE = 18; // adjust this to change "7x" font size
+  const MULTIPLIER_TEXT_Y = -55; // positive moves "7x" lower relative to arrow base
 
   const nowDotX = startX + 45;
   const nowDotY = hatchY;
@@ -110,9 +110,10 @@ export const Graph: React.FC = () => {
 
   // --- Curve positioning (add backward offset so path starts behind the dot) ---
   const CURVE_BACK_OFFSET = 28; // pixels to push the actual path start behind the visible starting dot
+  const TOP_CURVE_Y_OFFSET = 18; // matches internal padding to avoid clipping at apex
 
   // Curve sizing (remove vertical scaling math that could clip)
-  const TOP_VB = { w: 352, h: 118, startX: 6, startY: 112 };
+  const TOP_VB = { w: 350, h: 124, startX: 6, startY: 108 };
   const CURVE_SCALE = 0.78;
   const topW = Math.round(GRAPH_WIDTH * CURVE_SCALE);
   const topH = TOP_VB.h; // keep original height; TopCurve adds its own padding
@@ -123,8 +124,9 @@ export const Graph: React.FC = () => {
   const originalApexY = nowDotY - 106;
   const raiseOffset = originalApexY - targetApexY; // positive => move curve up
   // Apply raise: shift entire curve upward by raiseOffset
-  const topLeft = nowDotX - topScaleX * TOP_VB.startX - CURVE_BACK_OFFSET;
-  const topTop  = nowDotY - TOP_VB.startY - raiseOffset;
+  const CURVE_RIGHT_NUDGE = 26; // positive → move curve right
+  const topLeft = nowDotX - topScaleX * TOP_VB.startX - CURVE_BACK_OFFSET + CURVE_RIGHT_NUDGE;
+  const topTop  = nowDotY - TOP_VB.startY - raiseOffset - TOP_CURVE_Y_OFFSET;
 
   // Define bottom curve viewBox + start (fix TS error)
   const BOT_VB = { w: 318, h: 76, startX: 6, startY: 6.1253 };
@@ -150,9 +152,9 @@ export const Graph: React.FC = () => {
     // First cubic: from (6,112) -> (78.179,104.86)
     { x: [6, 35.029, 49.724, 78.179] as [number, number, number, number],
       y: [112, 112, 110.342, 104.86] as [number, number, number, number] },
-    // Second cubic: from (78.179,104.86) -> (346,6)
-    { x: [78.179, 159.137, 169.648, 346] as [number, number, number, number],
-      y: [104.86, 72.31, 6, 6] as [number, number, number, number] },
+    // Second cubic: from (78.179,104.86) -> (390,-10)
+    { x: [78.179, 159.137, 174, 390] as [number, number, number, number],
+      y: [104.86, 72.31, -12, -10] as [number, number, number, number] },
   ];
 
   const samples = 40;
@@ -212,8 +214,12 @@ export const Graph: React.FC = () => {
               <Stop offset="100%" stopColor="#1AEE0F" stopOpacity="0" />
             </RadialGradient>
             <LinearGradient id="xAxisGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-              <Stop offset="0%" stopColor="#FFFFFF" stopOpacity="1" />
-              <Stop offset="80%" stopColor="#FFFFFF" stopOpacity="0.45" />
+              <Stop offset="0%" stopColor="#ffffffff" stopOpacity="1" />
+              <Stop offset="10%" stopColor="#ffffffff" stopOpacity="0.75" />
+              <Stop offset="20%" stopColor="#ffffffff" stopOpacity="0.65" />
+              <Stop offset="30%" stopColor="#ffffffff" stopOpacity="0.55" />
+              <Stop offset="50%" stopColor="#FFFFFF" stopOpacity="0.45" />
+              <Stop offset="70%" stopColor="#FFFFFF" stopOpacity="0.45" />
               <Stop offset="100%" stopColor="#FFFFFF" stopOpacity="0" />
             </LinearGradient>
             <LinearGradient id="gridLineGrad" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -254,7 +260,11 @@ export const Graph: React.FC = () => {
         </Animated.View>
         {/* Right-side bright glow */}
         <Animated.View style={[styles.bgGlowWrapper, { opacity: bgGlowOpacity }]}>
-          <Image source={bgGlow} style={[styles.bgGlow, { opacity: 0.5 }]} resizeMode="cover" />
+          <Image source={bgGlow} style={[styles.bgGlow, { opacity: 1 }]} resizeMode="cover" />
+        </Animated.View>
+          {/* Right-side bright glow */}
+        <Animated.View style={[styles.bgGlowWrapper, { opacity: bgGlowOpacity }]}>
+          <Image source={bgGlow} style={[styles.bgGlow, { opacity: 1 }]} resizeMode="cover" />
         </Animated.View>
 
         {/* Curves */}
@@ -270,6 +280,7 @@ export const Graph: React.FC = () => {
               dotOpacity={dotPulse}
               dotProgress={dotProgress}
               delay={0}
+              yOffset={TOP_CURVE_Y_OFFSET}
             />
           </View>
           <View style={{ position: 'absolute', left: botLeft, top: botTop, width: botW, height: botH }}>
@@ -387,14 +398,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#14171F',
     borderRadius: 14,
-    paddingHorizontal: 18,
-    paddingVertical: 10,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
     gap: 8,
   },
-  clock: { width: 16, height: 16, tintColor: COLORS.white },
+  clock: { width: 17, height: 17, tintColor: COLORS.white },
   labelText: {
-    fontSize: 12.5,
-    fontWeight: '600',
+    fontSize: 14,
+    fontWeight: '500',
     color: COLORS.white,
     letterSpacing: 0.2,
   },
@@ -402,10 +413,10 @@ const styles = StyleSheet.create({
   // Bright right-side glow larger coverage
   bgGlowWrapper: {
     position: 'absolute',
-    top: -140,
-    right: -40,
-    bottom: -140,
-    left: -40,
+    top: -100,
+    right: -120,
+    bottom: -120,
+    left: -20,
     width: '120%',
   },
   bgGlow: { width: '100%', height: '100%' },
@@ -420,8 +431,8 @@ const styles = StyleSheet.create({
   },
 
   // 7x group
-  multiplierGroup: { position: 'absolute', right: 32, flexDirection: 'row', alignItems: 'flex-end', zIndex: 15 },
-  multiplierText: { fontSize: 32, fontWeight: '700', color: COLORS.white, marginLeft: 8, letterSpacing: -1 },
+  multiplierGroup: { position: 'absolute', right: 40, flexDirection: 'row', alignItems: 'flex-end', zIndex: 15 },
+  multiplierText: { fontSize: 32, fontWeight: '700', color: COLORS.white, marginLeft: 0, letterSpacing: -1 },
   arrowImage: { width: 50, height: 90 },
 
   // Legend (unchanged)
