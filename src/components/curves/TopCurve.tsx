@@ -57,7 +57,7 @@ export const TopCurve: React.FC<Props> = ({
   const scaleY = height / vbH;
 
   const strokeDriver = (progress ?? internal) as Animated.Value;
-  const pathTravelFactor = 0.79; // dot stops at 85% of path
+  const pathTravelFactor = 0.8; // dot stops at 85% of path
 
   // Base driver for dot (external override wins). Clamp to finish early so stroke can keep flowing.
   const dotBase = (dotProgress ?? strokeDriver) as Animated.Value;
