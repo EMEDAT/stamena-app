@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, Animated, Dimensions, Image, Easing } from 'react-native';
-import Svg, { Path, Circle, Defs, LinearGradient, Stop, G, RadialGradient } from 'react-native-svg';
+import Svg, { Path, Defs, LinearGradient, Stop } from 'react-native-svg';
 import { COLORS } from '../constants/colors';
 import { BackgroundGlow } from './gradients/BackgroundGlow';
 const clockIcon = require('../../assets/clock.png');
@@ -9,8 +9,6 @@ import { BottomCurve } from './curves/BottomCurve';
 import { ArrowUp } from './icons/ArrowUp';
 
 const AnimatedPath = Animated.createAnimatedComponent(Path);
-const AnimatedCircle = Animated.createAnimatedComponent(Circle);
-
 const { width: screenWidth } = Dimensions.get('window');
 const GRAPH_WIDTH = screenWidth;
 const GRAPH_HEIGHT = 245;
@@ -32,6 +30,19 @@ export const Graph: React.FC = () => {
   const topCurveProgress = useRef(new Animated.Value(0)).current;
   const dotProgress = useRef(new Animated.Value(0)).current;
 
+  const DOT_STOP_DISTANCE = 0.8; // how far along the curve the dot should halt
+  const DOT_EASE_BREAKPOINT = 0.74; // fraction of the animation where easing begins
+  const DOT_TOTAL_DURATION = 1600;
+  const DOT_PHASE_ONE_DURATION = Math.round(DOT_TOTAL_DURATION * DOT_EASE_BREAKPOINT);
+  const DOT_PHASE_TWO_DURATION = DOT_TOTAL_DURATION - DOT_PHASE_ONE_DURATION;
+
+  const CURVE_SYNC_PROGRESS = DOT_EASE_BREAKPOINT;
+  const CURVE_FINISH_PROGRESS = 1;
+  const CURVE_SYNC_DURATION = DOT_PHASE_ONE_DURATION;
+  const CURVE_FINISH_DURATION = 1300;
+  const DOT_LEAD = 0.316;
+  const DOT_CATCHUP_POINT = DOT_EASE_BREAKPOINT;
+
   useEffect(() => {
     topCurveProgress.setValue(0);
     dotProgress.setValue(0);
@@ -41,19 +52,35 @@ export const Graph: React.FC = () => {
       Animated.spring(labelY, { toValue: 0, useNativeDriver: true }),
       Animated.timing(baselineDraw, { toValue: 1, duration: 700, useNativeDriver: false }),
       Animated.timing(bgGlowOpacity, { toValue: 1, duration: 1200, useNativeDriver: true }),
-      Animated.timing(dotAppear, { toValue: 1, duration: 0, useNativeDriver: false }),          // dot appears immediately
-      Animated.timing(topCurveProgress, {
-        toValue: 1,
-        duration: 1770,
-        easing: Easing.linear,
-        useNativeDriver: false,
-      }), // top curve stroke (slower so dot leads)
-      Animated.timing(dotProgress, {
-        toValue: 1,
-        duration: 1530,
-        easing: Easing.linear,
-        useNativeDriver: false,
-      }), // faster dot travel
+      Animated.timing(dotAppear, { toValue: 1, duration: 0, useNativeDriver: false }), // dot appears immediately
+      Animated.sequence([
+        Animated.timing(topCurveProgress, {
+          toValue: CURVE_SYNC_PROGRESS,
+          duration: CURVE_SYNC_DURATION,
+          easing: Easing.linear,
+          useNativeDriver: false,
+        }),
+        Animated.timing(topCurveProgress, {
+          toValue: CURVE_FINISH_PROGRESS,
+          duration: CURVE_FINISH_DURATION,
+          easing: Easing.out(Easing.cubic),
+          useNativeDriver: false,
+        }),
+      ]),
+      Animated.sequence([
+        Animated.timing(dotProgress, {
+          toValue: DOT_EASE_BREAKPOINT,
+          duration: DOT_PHASE_ONE_DURATION,
+          easing: Easing.linear,
+          useNativeDriver: false,
+        }),
+        Animated.timing(dotProgress, {
+          toValue: 1,
+          duration: DOT_PHASE_TWO_DURATION,
+          easing: Easing.out(Easing.quad),
+          useNativeDriver: false,
+        }),
+      ]),
     ]).start();
 
     // Arrow appears first, then "7x" types-on (fade + slide) shortly after
@@ -76,6 +103,15 @@ export const Graph: React.FC = () => {
         Animated.timing(glowPulse, { toValue: 1, duration: 1400, useNativeDriver: false }),
         Animated.timing(glowPulse, { toValue: 0, duration: 1400, useNativeDriver: false }),
       ])
+    ).start();
+
+    dotPulse.setValue(1);
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(dotPulse, { toValue: 0.35, duration: 500, delay: 600, useNativeDriver: false }),
+        Animated.timing(dotPulse, { toValue: 1, duration: 500, useNativeDriver: false }),
+      ]),
+      { iterations: 3 }
     ).start();
   }, []);
 
@@ -143,101 +179,13 @@ export const Graph: React.FC = () => {
   const botLeft = nowDotX - botScaleX * BOT_VB.startX - CURVE_BACK_OFFSET;
   const botTop  = nowDotY - botScaleY * BOT_VB.startY;
 
-  // Use the exact path structure of TopCurve for the moving dot:
-  // M6 112 H35.029 C49.724 112 64.544 110.342 78.179 104.86 C159.137 72.31 179 5 416 5 H44
-  // Combine H + first C into a single cubic, then the second C and final line segment.
-  const cubic = (p0: number, p1: number, p2: number, p3: number, t: number) =>
-    (1 - t) ** 3 * p0 +
-    3 * (1 - t) ** 2 * t * p1 +
-    3 * (1 - t) * t ** 2 * p2 +
-    t ** 3 * p3;
-
-  const segs = [
-    // First cubic: from (6,112) -> (78.179,104.86)
-    { x: [6, 35.029, 49.724, 78.179] as [number, number, number, number],
-      y: [112, 112, 110.342, 104.86] as [number, number, number, number] },
-    // Second cubic: from (78.179,104.86) -> (416,5)
-    { x: [78.179, 159.137, 179, 416] as [number, number, number, number],
-      y: [104.86, 72.31, 5, 5] as [number, number, number, number] },
-    // Final straight segment: (416,5) -> (460,5)
-    { x: [416, 416, 460, 460] as [number, number, number, number],
-      y: [5, 5, 5, 5] as [number, number, number, number] },
-  ];
-
-  const samples = 40;
-  const tArray = Array.from({ length: samples }, (_, i) => i / (samples - 1));
-  // Approximate segment weights so timing feels even across the full spline
-  const segmentWeights = [140, 320, 44];
-  const totalLen = segmentWeights.reduce((sum, weight) => sum + weight, 0);
-  const cumulativeWeights = segmentWeights.reduce<number[]>((acc, weight) => {
-    const prev = acc.length === 0 ? 0 : acc[acc.length - 1];
-    acc.push(prev + weight / totalLen);
-    return acc;
-  }, []);
-  const firstBreak = cumulativeWeights[0] ?? 1;
-  const secondBreak = cumulativeWeights[1] ?? 1;
-  const safeFirstBreak = firstBreak > 0 ? firstBreak : Number.EPSILON;
-  const safeMiddleSpan = secondBreak - firstBreak > 0 ? secondBreak - firstBreak : Number.EPSILON;
-  const safeFinalSpan = 1 - secondBreak > 0 ? 1 - secondBreak : Number.EPSILON;
-
-  const pts = tArray.map((T) => {
-    if (T <= firstBreak) {
-      const s = T / safeFirstBreak;
-      const [x0, x1, x2, x3] = segs[0].x;
-      const [y0, y1, y2, y3] = segs[0].y;
-      return { x: cubic(x0, x1, x2, x3, s), y: cubic(y0, y1, y2, y3, s) };
-    } else {
-      if (T <= secondBreak) {
-        const s = (T - firstBreak) / safeMiddleSpan;
-        const [x0, x1, x2, x3] = segs[1].x;
-        const [y0, y1, y2, y3] = segs[1].y;
-        return { x: cubic(x0, x1, x2, x3, s), y: cubic(y0, y1, y2, y3, s) };
-      }
-      const s = (T - secondBreak) / safeFinalSpan;
-      const [x0, x1, x2, x3] = segs[2].x;
-      const [y0, y1, y2, y3] = segs[2].y;
-      return { x: cubic(x0, x1, x2, x3, s), y: cubic(y0, y1, y2, y3, s) };
-    }
-  });
-
-  const dotXArray = pts.map(p => topLeft + p.x * topScaleX);
-  const dotYArray = pts.map(p => topTop + p.y);
-
-  // Keep the blinking dot slightly ahead of the curve head
-  const DOT_LEAD = 0.06;
-  const dotLeadProgress = topCurveProgress.interpolate({
-    inputRange: [0, 1],
-    outputRange: [DOT_LEAD, 1],
-  });
-
-  const movingCx = dotLeadProgress.interpolate({
-    inputRange: tArray,
-    outputRange: dotXArray.map(x => x + CURVE_BACK_OFFSET), // align to visible starting dot
-    extrapolate: 'clamp',
-  });
-  const movingCy = dotLeadProgress.interpolate({
-    inputRange: tArray,
-    outputRange: dotYArray,
-    extrapolate: 'clamp',
-  });
   const startPointY = nowDotY - START_DOT_LIFT;
-
-
-  const glowRadius = glowPulse.interpolate({
-    inputRange: [0, 1],
-    outputRange: [12, 18],
-  });
 
   return (
     <Animated.View style={[styles.container, { opacity: fade }]}>
       <View style={styles.graphWrapper}>
         <Svg width={GRAPH_WIDTH} height={GRAPH_HEIGHT} style={StyleSheet.absoluteFillObject}>
           <Defs>
-            <RadialGradient id="dotGlow" cx="50%" cy="50%" r="50%">
-              <Stop offset="0%" stopColor="#FFFFFF" stopOpacity="0.85" />
-              <Stop offset="60%" stopColor="#1AEE0F" stopOpacity="0.30" />
-              <Stop offset="100%" stopColor="#1AEE0F" stopOpacity="0" />
-            </RadialGradient>
             <LinearGradient id="xAxisGrad" x1="0%" y1="0%" x2="100%" y2="0%">
               <Stop offset="0%" stopColor="#ffffffff" stopOpacity="1" />
               <Stop offset="10%" stopColor="#ffffffff" stopOpacity="1" />
@@ -291,10 +239,12 @@ export const Graph: React.FC = () => {
               width={topW}
               height={topH}
               progress={topCurveProgress}
-              lead={0.06}
+              lead={DOT_LEAD}
               // Keep dot size constant; blink via opacity
               dotOpacity={dotPulse}
               dotProgress={dotProgress}
+              dotCatchup={DOT_CATCHUP_POINT}
+              dotStop={DOT_STOP_DISTANCE}
               delay={0}
               yOffset={topCurveStrokeYOffset}
             />

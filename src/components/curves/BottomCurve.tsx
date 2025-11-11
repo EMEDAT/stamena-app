@@ -43,8 +43,10 @@ export const BottomCurve: React.FC<Props> = ({ width, height, delay = 400, durat
           gradientUnits="userSpaceOnUse"
         >
           <Stop offset="0%" stopColor="#000000" stopOpacity={0} />
-          <Stop offset="22%" stopColor="#0ff803ff" stopOpacity={1} />
-          <Stop offset="73%" stopColor="#EE0F0F" stopOpacity={1} />
+          <Stop offset="15%" stopColor="#0ff803ff" stopOpacity={1} />
+          <Stop offset="35%" stopColor="#0ff803ff" stopOpacity={1} />
+          <Stop offset="55%" stopColor="#b08529ff" stopOpacity={1} />
+          <Stop offset="73%" stopColor="#c82b2bff" stopOpacity={1} />
           <Stop offset="100%" stopColor="#EE0F0F" stopOpacity={0} />
         </LinearGradient>
       </Defs>
