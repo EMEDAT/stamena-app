@@ -8,8 +8,20 @@ import { Headline } from './src/components/Headline';
 import { Graph } from './src/components/Graph';
 import { Source } from './src/components/Source';
 import { Button } from './src/components/Button';
+import { useFonts } from 'expo-font';
 
 export default function App() {
+  const [fontsLoaded] = useFonts({
+    'SFProText-Regular': require('./assets/fonts/SF-Pro-Text-Regular.otf'),
+    'SFProText-Medium': require('./assets/fonts/SF-Pro-Text-Medium.otf'),
+    'SFProText-Semibold': require('./assets/fonts/SF-Pro-Text-Semibold.otf'),
+    'SFProText-Bold': require('./assets/fonts/SF-Pro-Text-Bold.otf'),
+  });
+
+  if (!fontsLoaded) {
+    return null; // or a custom loading component
+  }
+
   return (
     <SafeAreaProvider>
       <SafeAreaView style={styles.container} edges={['top', 'bottom']}>

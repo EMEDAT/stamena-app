@@ -10,6 +10,7 @@ import Animated, {
   runOnJS,
 } from 'react-native-reanimated';
 import { COLORS } from '../constants/colors';
+import { fontRegular, fontMedium, fontSemibold } from '../constants/typography';
 import Svg, { G, Path, Defs, ClipPath, Rect } from 'react-native-svg';
 const { width: screenWidth } = Dimensions.get('window');
 const CARD_WIDTH = screenWidth - 32;
@@ -214,11 +215,13 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   label: {
+    ...fontMedium,
     fontSize: 13,
     color: COLORS.gray[500],
     lineHeight: 18,
   },
   name: {
+    ...fontSemibold,
     fontSize: 13,
     color: COLORS.white,
     lineHeight: 18,
@@ -254,20 +257,21 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   dialogBadgeText: {
+    ...fontSemibold,
     color: '#ffe1e1ff',
     fontSize: 11,
-    fontWeight: '500',
     letterSpacing: 1,
     textTransform: 'uppercase',
   },
   dialogTitle: {
+    ...fontSemibold,
     fontSize: 18,
-    fontWeight: '600',
     color: '#ffe1e1ff',
     letterSpacing: 0.3,
     marginBottom: 8,
   },
   dialogBody: {
+    ...fontRegular,
     fontSize: 14,
     lineHeight: 20,
     color: COLORS.gray[500],
@@ -298,8 +302,8 @@ const styles = StyleSheet.create({
     opacity: 0.85,
   },
   dialogButtonText: {
+    ...fontMedium,
     fontSize: 14,
-    fontWeight: '500',
     letterSpacing: 0.4,
     textAlign: 'center',
   },

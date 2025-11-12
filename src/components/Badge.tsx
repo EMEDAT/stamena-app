@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, Animated, Image } from 'react-native';
 import { COLORS } from '../constants/colors';
+import { fontMedium } from '../constants/typography';
 
 // Use project-root assets folder
 const wavyCheck = require('../../assets/wavyCheck.png');
@@ -62,8 +63,8 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   text: {
+    ...fontMedium,
     fontSize: 15,
-    fontWeight: '400',
     color: COLORS.white,
     letterSpacing: 0.4,
   },

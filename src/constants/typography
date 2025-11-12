@@ -1,0 +1,4 @@
+export const fontRegular = { fontFamily: 'SFProText-Regular' };
+export const fontMedium = { fontFamily: 'SFProText-Medium' };
+export const fontSemibold = { fontFamily: 'SFProText-Semibold' };
+export const fontBold = { fontFamily: 'SFProText-Bold' };

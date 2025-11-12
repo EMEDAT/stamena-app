@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, Animated, Dimensions, Image, Easing } from 'react-native';
 import Svg, { Path, Defs, LinearGradient, Stop } from 'react-native-svg';
 import { COLORS } from '../constants/colors';
+import { fontSemibold, fontMedium, fontRegular, fontBold } from '../constants/typography';
 import { BackgroundGlow } from './gradients/BackgroundGlow';
 const clockIcon = require('../../assets/clock.png');
 import { TopCurve } from './curves/TopCurve';
@@ -372,8 +373,8 @@ const styles = StyleSheet.create({
   },
   clock: { width: 17, height: 17, tintColor: COLORS.white },
   labelText: {
+    ...fontMedium,
     fontSize: 14,
-    fontWeight: '500',
     color: COLORS.white,
     letterSpacing: 0.8,
   },
@@ -392,7 +393,7 @@ const styles = StyleSheet.create({
   // Now bubble
   nowWrapper: { position: 'absolute', alignItems: 'center' },
   nowBubble: { backgroundColor: '#404754', paddingHorizontal: 16, paddingVertical: 7, borderRadius: 8 },
-  nowText: { fontSize: 13, fontWeight: '500', color: COLORS.white, letterSpacing: 0.3 },
+  nowText: { ...fontMedium, fontSize: 13, color: COLORS.white, letterSpacing: 0.3 },
   nowArrow: {
     width: 0, height: 0, borderLeftWidth: 6, borderRightWidth: 6, borderTopWidth: 6, borderStyle: 'solid',
     borderLeftColor: 'transparent', borderRightColor: 'transparent', borderTopColor: '#404754', marginTop: -1,
@@ -400,7 +401,7 @@ const styles = StyleSheet.create({
 
   // 7x group
   multiplierGroup: { position: 'absolute', right: 40, flexDirection: 'row', alignItems: 'flex-end', zIndex: 15 },
-  multiplierText: { fontSize: 32, fontWeight: '700', color: COLORS.white, marginLeft: 0, letterSpacing: -1 },
+  multiplierText: { ...fontBold, fontSize: 32, color: COLORS.white, marginLeft: 0, letterSpacing: -1 },
   arrowImage: { width: 50, height: 90 },
 
   // Legend container
@@ -423,7 +424,7 @@ const styles = StyleSheet.create({
   },
   legendItem: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   legendSwatch: { width: 16, height: 16, borderRadius: 5 },
-  legendText: { fontSize: 15, fontWeight: '600', color: COLORS.white, letterSpacing: 0.2 },
+  legendText: { ...fontSemibold, fontSize: 15, color: COLORS.white, letterSpacing: 0.2 },
 
   // Starting point dot (on top of curves)
   startDot: {

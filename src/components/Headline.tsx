@@ -8,6 +8,7 @@ import Animated, {
   Easing,
 } from 'react-native-reanimated';
 import { COLORS } from '../constants/colors';
+import { fontSemibold } from '../constants/typography';
 
 export const Headline: React.FC = () => {
   const opacity1 = useSharedValue(0);
@@ -82,8 +83,8 @@ const styles = StyleSheet.create({
     marginBottom: 50,
   },
   headline: {
+    ...fontSemibold,
     fontSize: 17,
-    fontWeight: '600',
     lineHeight: 24,
     color: COLORS.white,
     textAlign: 'center',

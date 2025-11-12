@@ -9,6 +9,7 @@ import Animated, {
   interpolate,
 } from 'react-native-reanimated';
 import { COLORS } from '../constants/colors';
+import { fontMedium } from '../constants/typography';
 import Svg, { Defs, LinearGradient as SvgLinearGradient, Stop, Rect } from 'react-native-svg';
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
@@ -133,8 +134,8 @@ const styles = StyleSheet.create({
     opacity: 0,
   },
   text: {
+    ...fontMedium,
     fontSize: 15,
-    fontWeight: '400',
     color: '#ffffffff',
     letterSpacing: 0.5,
   },
