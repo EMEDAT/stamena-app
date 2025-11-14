@@ -42,3 +42,6 @@ yarn-error.*
 
 # ignore local assets
 assets/
+
+# ignore package lock
+package-lock.json
