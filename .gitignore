@@ -40,8 +40,8 @@ yarn-error.*
 /ios
 /android
 
-# ignore local assets
-assets/
+# # ignore local assets
+# assets/
 
-# ignore package lock
-package-lock.json
+# # ignore package lock
+# package-lock.json
