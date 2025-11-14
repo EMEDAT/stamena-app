@@ -3,8 +3,9 @@ import { View, Text, StyleSheet, Animated, Dimensions, Image, Easing } from 'rea
 import Svg, { Path, Defs, LinearGradient, Stop } from 'react-native-svg';
 import { COLORS } from '../constants/colors';
 import { fontSemibold, fontMedium, fontRegular, fontBold } from '../constants/typography';
-import { BackgroundGlow } from './gradients/BackgroundGlow';
 const clockIcon = require('../../assets/clock.png');
+const rectangleGradient = require('../../assets/rectangleGradient.png');
+const backgroundGradient = require('../../assets/backgroundGradient.png');
 import { TopCurve } from './curves/TopCurve';
 import { BottomCurve } from './curves/BottomCurve';
 import { ArrowUp } from './icons/ArrowUp';
@@ -227,9 +228,10 @@ export const Graph: React.FC = () => {
           {/* Removed old moving-dot block here; dot is now inside TopCurve */}
         </Svg>
 
-        {/* Right-side bright glow */}
-        <Animated.View style={[styles.bgGlowWrapper, { opacity: bgGlowOpacity }]} pointerEvents="none">
-          <BackgroundGlow style={styles.bgGlow} opacity={0.4} />
+        {/* Right-side gradient glow */}
+        <Animated.View style={[styles.rightGradientWrapper, { opacity: bgGlowOpacity }]} pointerEvents="none">
+          <Image source={backgroundGradient} style={styles.backgroundGradient} />
+          <Image source={rectangleGradient} style={styles.rectangleGradient} />
         </Animated.View>
 
         {/* Curves */}
@@ -379,16 +381,32 @@ const styles = StyleSheet.create({
     letterSpacing: 0.8,
   },
 
-  // Bright right-side glow larger coverage
-  bgGlowWrapper: {
+  // Right-side gradient glow coming from the right
+  rightGradientWrapper: {
     position: 'absolute',
-    top: -200,
-    right: -20,
-    bottom: -10,
-    left: -10,
-    width: '120%',
+    top: -150, // Extended up to hide top edge
+    right: -250, // Extended right to hide right edge
+    bottom: -150, // Extended down to hide bottom edge
+    width: GRAPH_WIDTH * 1.5, // Much wider to ensure no visible edges
+    height: GRAPH_HEIGHT + 300, // Much taller to hide top/bottom edges
+    overflow: 'visible',
   },
-  bgGlow: { width: '100%', height: '100%' },
+  backgroundGradient: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    resizeMode: 'contain',
+    left: -90,
+    top: -60,
+  },
+  rectangleGradient: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    resizeMode: 'contain',
+    left: -130,
+    top: -10,
+  },
 
   // Now bubble
   nowWrapper: { position: 'absolute', alignItems: 'center' },
