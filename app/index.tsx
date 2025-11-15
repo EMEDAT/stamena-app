@@ -2,26 +2,16 @@ import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, View } from 'react-native';
 import Svg, { Defs, LinearGradient, Stop, Rect } from 'react-native-svg';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
-import { COLORS } from './src/constants/colors';
-import { Badge } from './src/components/Badge';
-import { Headline } from './src/components/Headline';
-import { Graph } from './src/components/Graph';
-import { Source } from './src/components/Source';
-import { Button } from './src/components/Button';
-import { useFonts } from 'expo-font';
+import { router } from 'expo-router';
+import { COLORS } from '../src/constants/colors';
+import { LAYOUT } from '../src/constants/layout';
+import { Badge } from '../src/components/Badge';
+import { Headline } from '../src/components/Headline';
+import { Graph } from '../src/components/Graph';
+import { Source } from '../src/components/Source';
+import { BottomToolbar } from '../src/components/BottomToolbar';
 
-export default function App() {
-  const [fontsLoaded] = useFonts({
-    'SFProText-Regular': require('./assets/fonts/SF-Pro-Text-Regular.otf'),
-    'SFProText-Medium': require('./assets/fonts/SF-Pro-Text-Medium.otf'),
-    'SFProText-Semibold': require('./assets/fonts/SF-Pro-Text-Semibold.otf'),
-    'SFProText-Bold': require('./assets/fonts/SF-Pro-Text-Bold.otf'),
-  });
-
-  if (!fontsLoaded) {
-    return null; // or a custom loading component
-  }
-
+export default function Index() {
   return (
     <SafeAreaProvider>
       <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
@@ -46,7 +36,12 @@ export default function App() {
             <Graph />
             <Source />
           </View>
-          <Button />
+          <BottomToolbar
+            buttonText="I got it"
+            onPress={() => {
+              router.push('/onboarding/path1-erectile/education/pelvic-muscle-education');
+            }}
+          />
         </View>
       </SafeAreaView>
     </SafeAreaProvider>
@@ -61,7 +56,7 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     paddingHorizontal: 16,
-    paddingTop: 50,
+    paddingTop: LAYOUT.SCREEN_TOP_PADDING,
     paddingBottom: 0,
     justifyContent: 'space-between',
   },

@@ -8,7 +8,6 @@ import Animated, {
   withDelay,
   interpolate,
 } from 'react-native-reanimated';
-import { router } from 'expo-router';
 import { COLORS } from '../constants/colors';
 import { fontMedium } from '../constants/typography';
 import Svg, { Defs, LinearGradient as SvgLinearGradient, Stop, Rect } from 'react-native-svg';
@@ -17,22 +16,23 @@ const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 const AnimatedContainer = Animated.View;
 const { width: screenWidth } = Dimensions.get('window');
 
-export const Button: React.FC = () => {
-  const opacity = useSharedValue(0);
-  const translateY = useSharedValue(30);
+interface BottomToolbarProps {
+  buttonText: string;
+  onPress: () => void;
+  icon?: React.ReactNode;
+  enableAnimation?: boolean;
+}
+
+export const BottomToolbar: React.FC<BottomToolbarProps> = ({
+  buttonText,
+  onPress,
+  icon,
+  enableAnimation = false,
+}) => {
+  const opacity = useSharedValue(1);
+  const translateY = useSharedValue(0);
   const scale = useSharedValue(1);
   const glowOpacity = useSharedValue(0);
-
-  useEffect(() => {
-    opacity.value = withDelay(2100, withTiming(1, { duration: 500 }));
-    translateY.value = withDelay(
-      2100,
-      withSpring(0, {
-        damping: 20,
-        stiffness: 200,
-      })
-    );
-  }, []);
 
   const containerAnimatedStyle = useAnimatedStyle(() => ({
     opacity: opacity.value,
@@ -74,12 +74,13 @@ export const Button: React.FC = () => {
         style={[styles.button, buttonAnimatedStyle]}
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
-        onPress={() => {
-          router.push('/pelvic-muscle-education');
-        }}
+        onPress={onPress}
       >
         <Animated.View style={[styles.glow, glowAnimatedStyle]} />
-        <Text style={styles.text}>I got it</Text>
+        <View style={styles.buttonContent}>
+          <Text style={styles.text}>{buttonText}</Text>
+          {icon}
+        </View>
       </AnimatedPressable>
     </AnimatedContainer>
   );
@@ -133,6 +134,11 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.brandRed,
     borderRadius: 16,
     opacity: 0,
+  },
+  buttonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   text: {
     ...fontMedium,

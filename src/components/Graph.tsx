@@ -32,7 +32,7 @@ export const Graph: React.FC = () => {
   const topCurveProgress = useRef(new Animated.Value(0)).current;
   const dotProgress = useRef(new Animated.Value(0)).current;
 
-  const DOT_STOP_DISTANCE = 0.8; // how far along the curve the dot should halt
+  const DOT_STOP_DISTANCE = 0.79; // how far along the curve the dot should halt
   const DOT_EASE_BREAKPOINT = 0.74; // fraction of the animation where easing begins
   const DOT_TOTAL_DURATION = 1600;
   const DOT_PHASE_ONE_DURATION = Math.round(DOT_TOTAL_DURATION * DOT_EASE_BREAKPOINT);
