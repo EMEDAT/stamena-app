@@ -1,0 +1,387 @@
+# Stamena - UPDATED Onboarding Flow with 3 Routes
+
+## CRITICAL: Branching Onboarding Logic
+
+The onboarding has **3 different routes** based on the user's main goal selection. Each route has its own personalized questions and educational content.
+
+---
+
+## ONBOARDING FLOW ARCHITECTURE
+
+### Common Flow (All Users)
+1. **Initial Educational Slides** (4 slides)
+   - Welcome to Stamena
+   - Most overlooked muscle
+   - Rewire body and brain
+   - Stay motivated
+
+2. **Goal Selection Screen** ⭐ BRANCHING POINT
+   - What's your main goal?
+   - User selects ONE of 3 options
+
+### Route Split Based on Goal
+
+After goal selection, user enters one of 3 paths:
+- **Path 1**: Improve Erectile Function Route
+- **Path 2**: Improve Ejaculation Control Route  
+- **Path 3**: Maximize Sexual Wellness Route
+
+---
+
+## GOAL SELECTION SCREEN
+
+### Screen: "What's your main goal?"
+
+**Heading**: "What's your main goal?"
+**Subheading**: "Select what you'd like to improve. You can choose multiple options."
+
+### Three Goal Cards:
+
+#### Option 1: Improve Erectile Function
+```
+Title: Improve erectile function
+Description: Get hard more easily and stay hard when you want to, without overthinking it.
+Radio button: Selectable
+Background: Dark card with red border when selected
+```
+
+#### Option 2: Improve Ejaculation Control
+```
+Title: Improve ejaculation control
+Description: Last as long as you choose and finish on your own timing, not by accident.
+Radio button: Selectable
+Background: Dark card with red border when selected
+```
+
+#### Option 3: Maximize Sexual Wellness
+```
+Title: Maximize sexual wellness
+Description: Build full control – stronger erections, better stamina, and confidence that carries into every sexual experience.
+Radio button: Selectable (default selected)
+Background: Dark red card with red radio button
+```
+
+**Button**: "Continue"
+
+**Note**: User can select multiple options, but primary selection determines the main path.
+
+---
+
+## PATH 1: IMPROVE ERECTILE FUNCTION ROUTE
+
+### Flow Overview:
+Goal Selection → ED-Specific Questions → ED Educational Slides → Personalized Plan → Exercise Intro → Main App
+
+### 1.1 ED-Specific Questions (Path 1)
+
+#### Question 1: Which one best describes your problem?
+- Difficulty achieving erection (selected)
+- Difficulty maintaining erection
+- Both
+- Unsure
+- I don't want to answer
+
+#### Question 2: How often do you experience problems with erection?
+- Never (selected)
+- Rarely
+- Often
+- All the time
+- Unsure
+- I don't want to answer
+
+#### Question 3: How long have you been experiencing problems with erection?
+- Less than 1 year (selected)
+- From 1 to 5 years
+- From 5 to 10 years
+- More than 10 years
+- Unsure
+- I don't want to answer
+
+#### Question 4: How would you rate your libido (sex drive) in the last 3 months?
+**Rate from 1 to 5 scale**
+- 1 = Low
+- 5 = High
+Default: 3 selected
+
+#### Question 5: Do you take any pills to improve erection?
+- Yes, every time (selected)
+- I take them sometimes
+- No, I don't
+- Unsure
+- I don't want to answer
+
+#### Question 6: Stamena's Kegel Plan is better than pills
+**Comparison Table:**
+```
+                    Pills    Kegel
+Erection           ✓        ✓
+improvement
+
+Sexual stamina     ✓        ✓
+improvement
+
+Long-lasting       ✗        ✓
+effect
+
+Lack of side       ✗        ✓
+effects
+
+Confidence         ✗        ✓
+improvement
+```
+Source: National Center for Biotechnology Info.
+**Button**: "I got it"
+
+#### Question 7: How often do you drink alcohol?
+- Every day (selected)
+- Several times a week
+- Once a week
+- Once a month
+- I don't drink at all
+- Unsure
+- I don't want to answer
+
+#### Question 8-10: Common questions (smoking, diet, self-esteem)
+*Same as other paths*
+
+### 1.2 ED-Specific Educational Slides
+
+#### Slide 1: "Feeling frustrated?"
+```
+Background: Dark red gradient
+Imagery: Figure with red glow in pelvic area
+Text: More than 80% of men who experience premature ejaculation, report feelings of frustration, lowered self-esteem, and stress. You're not alone in this.
+Button: Next
+```
+
+#### Slide 2: "Erection issues hurts confidence"
+```
+Background: Red gradient
+Imagery: Red sphere/orb visual
+Text: Sexual confidence leaks into every part of life. When you're not in control, it eats at your mood, motivation, and self-esteem outside the bedroom.
+Button: Next
+```
+
+#### Slide 3: "Struggles with performance creates distance"
+```
+Background: Dark red gradient
+Imagery: Two silhouettes with tension
+Text: When you can't last, you can't fully connect. Intimacy becomes stressful. Over time, this builds tension – even in otherwise strong relationships.
+Button: Next
+```
+
+#### Slide 4: "Path to control"
+```
+Background: Blue gradient
+Imagery: Pelvic floor with red glow
+Text: Stamina is trainable. By strengthening your pelvic floor, you can regain sexual stamina, improve erection quality, and gain confidence in the bedroom.
+Button: Next
+```
+
+### 1.3 Personalized Plan Presentation
+*Same animated graph as all routes, but with ED-specific goals*
+- Goal: "Improve Erection Quality and Sexual Confidence"
+- Timeline: Customized based on answers
+
+### 1.4 Exercise Introduction
+*Same as all routes*
+
+---
+
+## PATH 2: IMPROVE EJACULATION CONTROL ROUTE
+
+### Flow Overview:
+Goal Selection → Ejaculation-Specific Questions → Ejaculation Educational Slides → Personalized Plan → Exercise Intro → Main App
+
+### 2.1 Ejaculation-Specific Questions (Path 2)
+
+#### Question 1: How satisfied are you with your sexual wellness?
+**Rate from 1 to 5**
+- 1 = Not satisfied
+- 5 = Very satisfied
+Default: 3 selected
+
+#### Question 2: How often do you experience premature ejaculation?
+- Never
+- Rarely
+- Often
+- All the time
+- Unsure
+- I don't want to answer
+
+#### Question 3: How long does sex typically last for you?
+- Less than 1 minute
+- 1-2 minutes
+- 2-5 minutes
+- 5-10 minutes
+- More than 10 minutes
+- I don't want to answer
+
+#### Question 4-7: Common questions (smoking, diet, self-esteem, alcohol)
+*Same as other paths*
+
+### 2.2 Ejaculation-Specific Educational Slides
+
+#### Slide 1: "The ability to control ejaculation depends on the strength of the Pelvic Floor (PF) muscles"
+```
+Background: Dark
+Imagery: Medical diagram of pelvic floor with arrows
+Text: Stronger PF muscles allow to control ejaculatory reflex better and last longer.
+Button: I got it
+```
+
+#### Slide 2: "Quality of erection depends on the strength of the Pelvic Floor (PF) muscles"
+```
+Background: Dark
+Imagery: Medical diagram of pelvic area with red glow
+Text: Stronger PF muscles help to fill and retain more blood in the male organ leading to harder and more lasting erection.
+Button: I got it
+```
+
+#### Slide 3: Other educational content
+*Similar structure to Path 1 but focused on ejaculation control*
+
+### 2.3 Personalized Plan Presentation
+*Same animated graph, with goal: "Improve Ejaculation Control and Erectile Function"*
+
+---
+
+## PATH 3: MAXIMIZE SEXUAL WELLNESS ROUTE
+
+### Flow Overview:
+Goal Selection → Wellness Questions → Wellness Educational Slides → Personalized Plan → Exercise Intro → Main App
+
+### 3.1 Sexual Wellness Questions (Path 3)
+
+#### Question 1: Overall sexual satisfaction rating
+**Rate from 1 to 5**
+- Current level of sexual wellness
+
+#### Question 2: What aspects would you like to improve?
+- Multiple selection:
+  - Erection quality
+  - Stamina/endurance
+  - Control
+  - Confidence
+  - Recovery time
+
+#### Question 3-6: Common questions
+*Same as other paths*
+
+### 3.2 Wellness Educational Slides
+
+#### Slide 1: "Modern life is weakening you"
+```
+Background: Dark red gradient
+Imagery: Skeleton showing weakened pelvic floor
+Text: We weren't made to sit for hours a day. But modern life shuts down the pelvic floor, and over time, this critical muscle weakens, leading to less control and erectile firmness in bed.
+Button: Next
+```
+
+#### Slide 2: General wellness education
+*Focus on holistic benefits of pelvic floor training*
+
+### 3.3 Personalized Plan Presentation
+*Same animated graph, with goal: "Improve Overall Sexual Performance and Wellness"*
+
+---
+
+## CONVERGENCE POINT
+
+After completing their specific path, all users converge at:
+
+1. **Exercise Introduction** (same for all)
+   - Short holding
+   - Trembling
+   - Long holding
+   - Pulse control
+   - Success screen
+
+2. **Main App** (same for all)
+   - Plan tab with personalized workout plan
+   - All other tabs identical
+
+---
+
+## IMPLEMENTATION NOTES
+
+### Navigation Logic:
+```typescript
+// After goal selection
+const goalRoutes = {
+  'erectile_function': 'Path1Navigator',
+  'ejaculation_control': 'Path2Navigator',
+  'sexual_wellness': 'Path3Navigator',
+};
+
+const selectedRoute = goalRoutes[userGoal];
+navigation.navigate(selectedRoute);
+```
+
+### Data Storage:
+```typescript
+interface UserOnboarding {
+  mainGoal: 'erectile_function' | 'ejaculation_control' | 'sexual_wellness';
+  path: 1 | 2 | 3;
+  answers: {
+    [key: string]: string | number;
+  };
+  completedAt: Date;
+}
+```
+
+### Plan Customization:
+Based on the path and answers, generate:
+- Custom goal statement
+- Tailored timeline
+- Specific exercise focus
+- Personalized educational content
+
+---
+
+## FIGMA SCREENS BY PATH
+
+### Path 1 (Erectile Dysfunction):
+- Onboarding - Path 1 - Step 1/Wireframe
+- Onboarding - Path 1 - Step 2/Wireframe
+- ... (all steps)
+
+### Path 2 (Ejaculation Control):
+- Onboarding - Path 2 - Step 1/Wireframe
+- Onboarding - Path 2 - Step 2/Wireframe
+- ... (all steps)
+
+### Path 3 (Sexual Wellness):
+- Onboarding - Path 3 - Step 1/Wireframe
+- Onboarding - Path 3 - Step 2/Wireframe
+- ... (all steps)
+
+---
+
+## TESTING CHECKLIST
+
+- [ ] Test Path 1 (ED) end-to-end
+- [ ] Test Path 2 (Ejaculation) end-to-end
+- [ ] Test Path 3 (Wellness) end-to-end
+- [ ] Test switching between paths
+- [ ] Verify correct plan generation for each path
+- [ ] Verify educational slides match selected path
+- [ ] Test data persistence across paths
+- [ ] Verify convergence to main app works
+
+---
+
+## DEVELOPMENT PRIORITY
+
+### Sprint 2-3 Focus:
+**Week 2**: 
+- Goal selection screen
+- Path 1 (ED route) - most common use case
+- Convergence to plan presentation
+
+**Week 3**:
+- Path 2 (Ejaculation route)
+- Path 3 (Wellness route)
+- Test all paths
+
+This ensures we have one complete path working early for testing.

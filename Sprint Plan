@@ -1,0 +1,404 @@
+# Stamena - UPDATED Sprint Plan for Onboarding (3 Routes)
+
+## CRITICAL UPDATE: Onboarding has 3 separate routes
+
+Based on the user's goal selection, they go through one of three customized paths:
+1. **Path 1**: Improve Erectile Function
+2. **Path 2**: Improve Ejaculation Control
+3. **Path 3**: Maximize Sexual Wellness
+
+---
+
+## REVISED SPRINT 2 (Week 2): Onboarding Foundation + Goal Selection
+
+### Goals
+- Complete initial educational slides (common for all users)
+- Build goal selection screen
+- Start Path 1 (Erectile Function route)
+
+### Tasks
+
+#### 2.1 Initial Educational Slides (Common)
+- [ ] Create 4 slides (as previously planned):
+  - Welcome to Stamena
+  - Most overlooked muscle
+  - Rewire body and brain
+  - Stay motivated
+- [ ] Implement swipe navigation
+- [ ] Add progress indicators
+- [ ] "Skip" functionality
+
+#### 2.2 Goal Selection Screen ⭐ NEW
+- [ ] Create `GoalSelectionScreen.tsx`
+- [ ] Build three goal cards:
+  - Improve erectile function
+  - Improve ejaculation control
+  - Maximize sexual wellness
+- [ ] Radio button selection (allow multiple)
+- [ ] "Continue" button
+- [ ] Save selected goal to state
+- [ ] Route to appropriate path based on selection
+
+#### 2.3 Routing Logic
+- [ ] Create three separate navigators:
+  - `Path1Navigator.tsx` (ED route)
+  - `Path2Navigator.tsx` (Ejaculation route)
+  - `Path3Navigator.tsx` (Wellness route)
+- [ ] Implement branching logic based on goal
+- [ ] Ensure state persists across path
+
+#### 2.4 Path 1: ED Questions (Start)
+- [ ] Create `EDQuestionsScreen.tsx`
+- [ ] Implement first 3 questions:
+  - Which one best describes your problem?
+  - How often do you experience problems?
+  - How long have you been experiencing problems?
+- [ ] Build question component (reusable)
+- [ ] Navigation between questions
+
+**Deliverable**: Goal selection working, Path 1 started
+
+---
+
+## REVISED SPRINT 3 (Week 3): Complete Path 1 + Start Paths 2 & 3
+
+### Goals
+- Finish Path 1 completely
+- Build Path 2 and Path 3 foundations
+- Test one complete onboarding flow
+
+### Tasks
+
+#### 3.1 Complete Path 1 Questions
+- [ ] Questions 4-7:
+  - Libido rating (1-5 scale)
+  - Pills usage
+  - Kegel vs Pills comparison table
+  - Alcohol frequency
+- [ ] Questions 8-10 (common):
+  - Smoking status
+  - Diet health
+  - Self-esteem
+- [ ] Build comparison table component
+- [ ] Save all answers to state
+
+#### 3.2 Path 1 Educational Slides
+- [ ] Create 4 ED-specific slides:
+  - "Feeling frustrated?"
+  - "Erection issues hurts confidence"
+  - "Struggles with performance creates distance"
+  - "Path to control"
+- [ ] Match exact Figma designs
+- [ ] Smooth transitions
+
+#### 3.3 Path 2: Ejaculation Control (Start)
+- [ ] Create `EjaculationQuestionsScreen.tsx`
+- [ ] Implement questions:
+  - Sexual wellness satisfaction (1-5)
+  - Premature ejaculation frequency
+  - Sex duration
+  - Common questions (4-7)
+- [ ] Educational slides:
+  - PF muscles for ejaculation control
+  - PF muscles for erection quality
+
+#### 3.4 Path 3: Sexual Wellness (Start)
+- [ ] Create `WellnessQuestionsScreen.tsx`
+- [ ] Implement questions:
+  - Overall satisfaction
+  - Aspects to improve (multi-select)
+  - Common questions
+- [ ] Educational slides:
+  - "Modern life is weakening you"
+  - Wellness benefits
+
+#### 3.5 Test Path 1 End-to-End
+- [ ] Test full Path 1 flow
+- [ ] Verify data saves correctly
+- [ ] Test navigation convergence
+- [ ] Fix any bugs
+
+**Deliverable**: Path 1 complete, Paths 2 & 3 started
+
+---
+
+## REVISED SPRINT 4 (Week 4): Complete All Paths + Personalized Plan
+
+### Goals
+- Complete Paths 2 & 3
+- Build personalized plan presentation (convergence point)
+- Build exercise introduction (all paths converge)
+- Complete full onboarding
+
+### Tasks
+
+#### 4.1 Finish Path 2 & 3
+- [ ] Complete any remaining questions
+- [ ] Complete educational slides
+- [ ] Test each path independently
+
+#### 4.2 Personalized Plan Screen (All Paths Converge)
+- [ ] Create `PersonalizedPlanScreen.tsx`
+- [ ] Build animated graph component:
+  - SVG curve path
+  - Red → Yellow → Green gradient
+  - Moving dot animation (60fps)
+  - Timeline markers (Week 1-6)
+  - "Now" indicator
+  - "Sustained progress" label
+- [ ] Display goal based on selected path:
+  - Path 1: "Improve Erection Quality..."
+  - Path 2: "Improve Ejaculation Control..."
+  - Path 3: "Improve Overall Sexual Performance..."
+- [ ] Show duration and equipment
+- [ ] "I got it" button
+
+#### 4.3 Graph Animation (CRITICAL - 60fps)
+- [ ] Path drawing animation (1200ms)
+- [ ] Dot movement along curve (1500ms)
+- [ ] Gradient transitions
+- [ ] Sequential text reveals (300ms stagger)
+- [ ] Use react-native-reanimated
+- [ ] Profile and ensure 60fps
+
+#### 4.4 Exercise Introduction (All Paths)
+- [ ] Create `ExerciseIntroScreen.tsx`
+- [ ] Build unlock progression:
+  - Short holding (Beginner)
+  - Trembling (Intermediate)
+  - Long holding (Advanced)
+  - Pulse control (Professional)
+  - Success screen
+- [ ] Circular icon animations
+- [ ] "Try this technique" / "Skip for now" buttons
+
+#### 4.5 Onboarding Completion
+- [ ] Save onboarding_completed flag
+- [ ] Generate personalized plan in database
+- [ ] Navigate to main app
+- [ ] First-time setup
+
+#### 4.6 Full Testing
+- [ ] E2E test all 3 paths
+- [ ] Test path switching
+- [ ] Test data persistence
+- [ ] Verify animations
+- [ ] Fix bugs
+
+**Deliverable**: Complete onboarding with all 3 paths
+
+---
+
+## REVISED FILE STRUCTURE
+
+```
+src/
+├── screens/
+│   ├── onboarding/
+│   │   ├── common/
+│   │   │   ├── EducationalSlidesScreen.tsx (initial slides)
+│   │   │   ├── GoalSelectionScreen.tsx ⭐ NEW
+│   │   │   ├── PersonalizedPlanScreen.tsx (convergence)
+│   │   │   └── ExerciseIntroScreen.tsx (convergence)
+│   │   ├── path1-ed/
+│   │   │   ├── EDQuestionsScreen.tsx
+│   │   │   ├── EDEducationalSlides.tsx
+│   │   │   └── EDComparisonTable.tsx
+│   │   ├── path2-ejaculation/
+│   │   │   ├── EjaculationQuestionsScreen.tsx
+│   │   │   └── EjaculationEducationalSlides.tsx
+│   │   └── path3-wellness/
+│   │       ├── WellnessQuestionsScreen.tsx
+│   │       └── WellnessEducationalSlides.tsx
+│   ├── navigation/
+│   │   ├── OnboardingNavigator.tsx (main)
+│   │   ├── Path1Navigator.tsx ⭐ NEW
+│   │   ├── Path2Navigator.tsx ⭐ NEW
+│   │   └── Path3Navigator.tsx ⭐ NEW
+```
+
+---
+
+## DEVELOPMENT STRATEGY
+
+### Priority Order:
+1. **Week 2**: Common flow + Path 1 (most common use case for ED)
+2. **Week 3**: Complete Path 1, build Paths 2 & 3
+3. **Week 4**: Polish all paths, animated plan, exercise intro
+
+### Code Reusability:
+- Question component (shared across paths)
+- Educational slide template (shared layout)
+- Personalized plan (same for all, different goals)
+- Exercise intro (identical for all paths)
+
+### Testing Strategy:
+- Test Path 1 thoroughly first
+- Use Path 1 as template for Paths 2 & 3
+- Test convergence points carefully
+- Ensure no data leaks between paths
+
+---
+
+## NAVIGATION FLOW DIAGRAM
+
+```
+Initial Slides (Common)
+        ↓
+Goal Selection Screen ⭐
+        ↓
+   ┌────┴────┬────────┐
+   ↓         ↓        ↓
+Path 1    Path 2   Path 3
+  ED      Ejac.    Wellness
+   ↓         ↓        ↓
+  Q1-7      Q1-7     Q1-6
+   ↓         ↓        ↓
+ED Slides  Ejac    Wellness
+          Slides    Slides
+   ↓         ↓        ↓
+   └────┬────┴────────┘
+        ↓
+Personalized Plan (Convergence)
+        ↓
+Exercise Introduction (Common)
+        ↓
+    Main App
+```
+
+---
+
+## DATA MODEL UPDATE
+
+```typescript
+interface OnboardingState {
+  // Common
+  initialSlidesCompleted: boolean;
+  
+  // Goal Selection
+  selectedGoals: ('erectile_function' | 'ejaculation_control' | 'sexual_wellness')[];
+  primaryGoal: 'erectile_function' | 'ejaculation_control' | 'sexual_wellness';
+  
+  // Path-specific
+  currentPath: 1 | 2 | 3;
+  
+  // Answers (varies by path)
+  pathAnswers: {
+    // Path 1 (ED)
+    problemDescription?: string;
+    problemFrequency?: string;
+    problemDuration?: string;
+    libidoRating?: number;
+    takingPills?: string;
+    alcoholFrequency?: string;
+    
+    // Path 2 (Ejaculation)
+    sexualWellnessSatisfaction?: number;
+    prematureEjaculationFrequency?: string;
+    sexDuration?: string;
+    
+    // Path 3 (Wellness)
+    overallSatisfaction?: number;
+    areasToImprove?: string[];
+    
+    // Common to all paths
+    smokingStatus?: string;
+    dietHealth?: number;
+    selfEsteemIssues?: boolean;
+  };
+  
+  // Convergence
+  personalizedPlan: {
+    goalStatement: string;
+    targetDate: string;
+    expectedImprovement: string;
+    duration: string;
+    equipment: string;
+  };
+  
+  exerciseIntroCompleted: boolean;
+  onboardingCompleted: boolean;
+}
+```
+
+---
+
+## QUICK START FOR PATH LOGIC
+
+```typescript
+// src/navigation/OnboardingNavigator.tsx
+
+import { GoalSelectionScreen } from '@/screens/onboarding/common/GoalSelectionScreen';
+import { Path1Navigator } from './Path1Navigator';
+import { Path2Navigator } from './Path2Navigator';
+import { Path3Navigator } from './Path3Navigator';
+
+export const OnboardingNavigator = () => {
+  return (
+    <Stack.Navigator>
+      {/* Common initial flow */}
+      <Stack.Screen name="EducationalSlides" component={EducationalSlidesScreen} />
+      <Stack.Screen name="GoalSelection" component={GoalSelectionScreen} />
+      
+      {/* Branching paths */}
+      <Stack.Screen name="Path1" component={Path1Navigator} />
+      <Stack.Screen name="Path2" component={Path2Navigator} />
+      <Stack.Screen name="Path3" component={Path3Navigator} />
+      
+      {/* Convergence */}
+      <Stack.Screen name="PersonalizedPlan" component={PersonalizedPlanScreen} />
+      <Stack.Screen name="ExerciseIntro" component={ExerciseIntroScreen} />
+    </Stack.Navigator>
+  );
+};
+```
+
+```typescript
+// src/screens/onboarding/common/GoalSelectionScreen.tsx
+
+const handleContinue = () => {
+  // Determine primary goal
+  const primaryGoal = selectedGoals[0]; // or most important
+  
+  // Save to state/database
+  saveUserGoal(primaryGoal);
+  
+  // Navigate to appropriate path
+  const pathMap = {
+    'erectile_function': 'Path1',
+    'ejaculation_control': 'Path2',
+    'sexual_wellness': 'Path3',
+  };
+  
+  navigation.navigate(pathMap[primaryGoal]);
+};
+```
+
+---
+
+## TESTING CHECKLIST (Updated)
+
+### Week 2:
+- [ ] Initial slides work
+- [ ] Goal selection screen functional
+- [ ] Path 1 questions saving correctly
+- [ ] Navigation to Path 1 works
+
+### Week 3:
+- [ ] Path 1 complete end-to-end
+- [ ] Path 1 educational slides match Figma
+- [ ] Path 2 questions implemented
+- [ ] Path 3 questions implemented
+
+### Week 4:
+- [ ] All 3 paths complete
+- [ ] Personalized plan shows correct goal per path
+- [ ] Graph animation 60fps
+- [ ] Exercise intro works for all paths
+- [ ] Can complete full onboarding via any path
+- [ ] Data persists correctly
+- [ ] No bugs when switching paths
+
+---
+
+This updated plan accounts for the 3 separate onboarding routes while maintaining realistic timelines and deliverables!

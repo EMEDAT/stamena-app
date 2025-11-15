@@ -1,0 +1,680 @@
+# Stamena - Figma Implementation Checklist
+
+## How to Use This Checklist
+1. Open Figma design alongside your app
+2. For each screen, verify EVERY element matches
+3. Check off items only when pixel-perfect
+4. Take screenshots for comparison
+5. Note any discrepancies in "Issues" column
+
+---
+
+## ONBOARDING FLOW
+
+### Educational Slides - Path 2
+
+#### Slide 1: Welcome to Stamena
+- [ ] Background gradient (purple to red)
+- [ ] Medical imagery (pelvic floor illustration)
+- [ ] Title typography (font, size, weight, color)
+- [ ] Body text (alignment, spacing, opacity)
+- [ ] Next button (color, size, border radius, shadow)
+- [ ] Progress dots (size, spacing, active color)
+- [ ] Skip button (position, style)
+- [ ] Status bar (light content)
+
+**Issues**: _______________________
+
+#### Slide 2: Most overlooked muscle
+- [ ] Background gradient (red to purple)
+- [ ] Medical imagery (skeleton with highlighted area)
+- [ ] Title matches Figma
+- [ ] Body text layout
+- [ ] Button styling
+- [ ] Dots indicator
+- [ ] Transitions smooth (300ms)
+
+**Issues**: _______________________
+
+#### Slide 3: Rewire body and brain
+- [ ] Background gradient (purple to blue)
+- [ ] Brain-neural imagery
+- [ ] Text content accurate
+- [ ] Layout spacing correct
+- [ ] All elements positioned correctly
+
+**Issues**: _______________________
+
+#### Slide 4: Stay motivated
+- [ ] Background gradient (blue to red)
+- [ ] Motivation imagery
+- [ ] Text styling
+- [ ] Button position
+- [ ] Final slide handling
+
+**Issues**: _______________________
+
+### Personalization Questions
+
+#### Question: Do you smoke?
+- [ ] Progress bar at top (correct width)
+- [ ] Question text (size, weight)
+- [ ] Subtext styling
+- [ ] Radio button options:
+  - [ ] Yes, I do
+  - [ ] No, I don't
+  - [ ] Sometimes
+  - [ ] I don't want to answer
+- [ ] Selected state styling (red background)
+- [ ] Unselected state (transparent with border)
+- [ ] Back/Next buttons
+- [ ] Navigation indicator
+
+**Issues**: _______________________
+
+#### Question: Diet Health (1-5 Scale)
+- [ ] Scale selector UI
+- [ ] Number buttons (1-5)
+- [ ] Selected number (red background)
+- [ ] Labels (Unhealthy / Healthy)
+- [ ] Button press animations
+
+**Issues**: _______________________
+
+#### Other Questions
+- [ ] Self-esteem question
+- [ ] Erectile function question
+- [ ] Erection difficulty question
+- [ ] All use consistent styling
+- [ ] Transitions between questions smooth
+
+**Issues**: _______________________
+
+### Personalized Plan Presentation
+
+#### Graph Animation
+- [ ] Timeline labels (Week 1-6)
+- [ ] "Now" marker positioned correctly
+- [ ] "Sustained progress" label
+- [ ] Curve path (red → yellow → green gradient)
+- [ ] Path drawing animation (1200ms)
+- [ ] Moving dot along curve
+- [ ] Dot pulsing animation
+- [ ] Graph labels positioning
+
+**Issues**: _______________________
+
+#### Content
+- [ ] Title text ("Based on your...")
+- [ ] Goal display (green text)
+- [ ] Target date (with green badge)
+- [ ] Duration icon + text
+- [ ] Equipment icon + text
+- [ ] Note text styling
+- [ ] "I got it" button
+
+**Issues**: _______________________
+
+### Exercise Introduction
+
+#### Progression Cards
+- [ ] Circular icon (red gradient)
+- [ ] Target/bullseye design
+- [ ] Unlock indicator (checkmark or lock)
+- [ ] Exercise name
+- [ ] Description text
+- [ ] Difficulty badge
+- [ ] "Try this technique" button
+- [ ] "Skip for now" button
+- [ ] Card animations on unlock
+
+**Short Holding**:
+- [ ] All elements match Figma
+
+**Trembling**:
+- [ ] All elements match Figma
+
+**Long Holding**:
+- [ ] All elements match Figma
+
+**Pulse Control**:
+- [ ] All elements match Figma
+
+**Success Screen**:
+- [ ] Checkmark icon
+- [ ] "Well done!" text
+- [ ] Button styling
+
+**Issues**: _______________________
+
+### Educational Slides - Path 3
+
+#### Modern Life Weakening
+- [ ] Background gradient (dark red)
+- [ ] Medical imagery (seated posture)
+- [ ] Text accurate
+- [ ] Layout correct
+
+**Issues**: _______________________
+
+#### Erection Issues
+- [ ] Background gradient (red)
+- [ ] Imagery
+- [ ] Text styling
+
+**Issues**: _______________________
+
+#### Performance Struggles
+- [ ] Background gradient (dark blue)
+- [ ] Silhouette imagery
+- [ ] Text layout
+- [ ] "Next" button
+
+**Issues**: _______________________
+
+---
+
+## MAIN APP
+
+### Plan Tab
+
+#### Smart Routine
+- [ ] Calendar horizontal scroll
+- [ ] Day circles (24 days)
+- [ ] Current day indicator
+- [ ] Completed day checkmarks
+- [ ] Today highlighting
+- [ ] Smooth scroll animation
+
+**Issues**: _______________________
+
+#### Workout List
+- [ ] "Today's workouts" heading
+- [ ] Workout cards layout
+- [ ] Card structure:
+  - [ ] Workout name
+  - [ ] Program + Day
+  - [ ] Duration icon + text
+  - [ ] Exercise count icon + text
+  - [ ] Circular checkbox
+  - [ ] Completed state styling
+- [ ] Card spacing
+- [ ] Press animation
+
+**Issues**: _______________________
+
+#### Pro Tips
+- [ ] Horizontal scroll
+- [ ] Tip cards
+- [ ] "How to find pelvic floor" content
+- [ ] Card styling
+- [ ] Scroll indicators
+
+**Issues**: _______________________
+
+#### Plan Details
+- [ ] Section headings
+- [ ] Content cards
+- [ ] Educational content
+- [ ] FAQ layout
+- [ ] Text hierarchy
+
+**Issues**: _______________________
+
+### Exercise Session
+
+#### Active Exercise Screen
+- [ ] Exercise counter ("1 of 3")
+- [ ] Exit button (top left)
+- [ ] Circular timer:
+  - [ ] Size and position
+  - [ ] Number size and font
+  - [ ] Progress ring (red gradient)
+  - [ ] Background circle
+  - [ ] Smooth animation (60fps)
+- [ ] Exercise name
+- [ ] Instruction text
+- [ ] Sub-instruction text
+- [ ] Trembling buttons:
+  - [ ] On button styling
+  - [ ] Off button styling
+  - [ ] Toggle animation
+- [ ] Pause button
+- [ ] Timer countdown animation
+- [ ] Ring drawing animation
+
+**Issues**: _______________________
+
+#### Session Complete
+- [ ] Trophy icon (glow effect)
+- [ ] "Great work!" heading
+- [ ] Session stats card:
+  - [ ] Duration icon + text
+  - [ ] Exercises icon + text
+- [ ] "Session complete" card
+- [ ] Completion message
+- [ ] Consistency tip
+- [ ] "Complete session" button
+- [ ] Confetti animation
+- [ ] Trophy pulse animation
+
+**Issues**: _______________________
+
+#### Exit Confirmation Modal
+- [ ] Modal overlay (blur/dim)
+- [ ] Card design
+- [ ] "End exercising?" text
+- [ ] Warning message
+- [ ] Cancel button
+- [ ] End button (red)
+- [ ] Modal slide animation
+
+**Issues**: _______________________
+
+### Community Tab
+
+#### Guidelines Screen
+- [ ] Community icon
+- [ ] "Before you join" heading
+- [ ] Guidelines list:
+  - [ ] Bullet point styling
+  - [ ] Text formatting
+  - [ ] Spacing
+- [ ] Nickname input field
+- [ ] Placeholder text
+- [ ] Agreement checkbox + text
+- [ ] "Join community" button
+
+**Issues**: _______________________
+
+#### Feed Screen
+- [ ] Tab selector (Popular/New)
+- [ ] Floating "New post" button
+- [ ] Post cards:
+  - [ ] Avatar
+  - [ ] Nickname
+  - [ ] Time ago
+  - [ ] Post title
+  - [ ] Content preview
+  - [ ] Tag badge
+  - [ ] Like icon + count
+  - [ ] Comment icon + count
+  - [ ] Bookmark icon
+  - [ ] Menu dots
+  - [ ] Card spacing
+  - [ ] Divider lines
+- [ ] Pull to refresh
+- [ ] Loading skeleton
+
+**Issues**: _______________________
+
+#### Post Detail
+- [ ] Full post content
+- [ ] Comments section
+- [ ] Comment card styling
+- [ ] Nested comments (indentation)
+- [ ] Like/Reply buttons
+- [ ] Comment input
+- [ ] Keyboard handling
+- [ ] Send button
+
+**Issues**: _______________________
+
+#### Notifications
+- [ ] "Notifications" heading
+- [ ] "Mark all as read" button
+- [ ] Notification items:
+  - [ ] Avatar
+  - [ ] Description text
+  - [ ] Time ago
+  - [ ] Content preview
+  - [ ] Unread indicator
+- [ ] Empty state
+
+**Issues**: _______________________
+
+### AI Coach Tab
+
+#### Chat Screen
+- [ ] Message bubbles:
+  - [ ] User (right, red background)
+  - [ ] AI (left, dark background)
+  - [ ] Border radius
+  - [ ] Padding
+  - [ ] Shadow
+- [ ] AI avatar (red circle)
+- [ ] Timestamps
+- [ ] "Try asking:" section
+- [ ] Suggestion chips
+- [ ] Input field
+- [ ] Send button (red)
+- [ ] Keyboard handling
+
+**Issues**: _______________________
+
+#### Journal List
+- [ ] "Your journal" heading
+- [ ] "+ New entry" button
+- [ ] Entry cards:
+  - [ ] Week number
+  - [ ] Mood emoji
+  - [ ] Preview text
+  - [ ] Date
+  - [ ] Menu dots
+- [ ] Card styling
+- [ ] Empty state
+
+**Issues**: _______________________
+
+#### Journal Entry
+- [ ] Title field
+- [ ] Mood selector:
+  - [ ] Emoji options (6+)
+  - [ ] Selected state
+  - [ ] Grid layout
+- [ ] "Your thoughts" textarea
+- [ ] Character count (if any)
+- [ ] Save button
+- [ ] Cancel button
+- [ ] Success toast
+
+**Issues**: _______________________
+
+### Profile Tab
+
+#### Profile Screen
+- [ ] User info:
+  - [ ] Avatar
+  - [ ] Name
+  - [ ] Date joined
+- [ ] Stats grid:
+  - [ ] Streak (flame icon)
+  - [ ] Sessions (target icon)
+  - [ ] Card styling
+  - [ ] Number size
+  - [ ] Label text
+- [ ] Personal goal section:
+  - [ ] Goal title
+  - [ ] Description
+  - [ ] Edit button
+- [ ] Availability button
+- [ ] Settings icon
+
+**Issues**: _______________________
+
+#### Edit Goals
+- [ ] "Select your primary health goals" heading
+- [ ] Goal cards:
+  - [ ] Icon
+  - [ ] Title
+  - [ ] Description
+  - [ ] Checkbox
+  - [ ] Selected state (red)
+- [ ] Multiple selection
+- [ ] Save button
+
+**Issues**: _______________________
+
+#### Edit Availability
+- [ ] "Select preferred training days" heading
+- [ ] Day pills (M/T/W/T/F/S/S):
+  - [ ] Pill styling
+  - [ ] Selected state (red)
+  - [ ] Unselected state
+- [ ] Time slots:
+  - [ ] Morning
+  - [ ] Afternoon
+  - [ ] Evening
+  - [ ] Radio selection
+  - [ ] Time range text
+
+**Issues**: _______________________
+
+#### Manage Reminders
+- [ ] "Set up daily reminders" heading
+- [ ] Reminder cards:
+  - [ ] Time display
+  - [ ] Day pills
+  - [ ] Toggle switch
+  - [ ] Delete button
+- [ ] Add reminder button
+- [ ] Card spacing
+
+**Issues**: _______________________
+
+#### Achievements
+- [ ] Achievement grid (3 columns)
+- [ ] Unlocked state:
+  - [ ] Icon (color)
+  - [ ] Glow effect
+- [ ] In progress:
+  - [ ] Icon (dimmed)
+  - [ ] Progress bar
+- [ ] Locked state:
+  - [ ] Icon (grayed)
+  - [ ] Lock overlay
+- [ ] Count indicator (4/9)
+- [ ] Filter tabs
+
+**Issues**: _______________________
+
+---
+
+## ANIMATIONS CHECKLIST
+
+### Critical Animations (Must be 60fps)
+
+#### Onboarding Graph
+- [ ] Path draws smoothly (1200ms)
+- [ ] Dot moves along curve (1500ms)
+- [ ] Gradient transitions cleanly
+- [ ] Text reveals sequentially (300ms stagger)
+- [ ] No frame drops
+- [ ] Smooth on device
+
+**FPS Test**: _____ (must be 60)
+**Issues**: _______________________
+
+#### Exercise Timer
+- [ ] Circular progress smooth
+- [ ] Number countdown animates
+- [ ] Ring drawing clean
+- [ ] No stuttering
+- [ ] State changes smooth (200ms)
+
+**FPS Test**: _____ (must be 60)
+**Issues**: _______________________
+
+#### Session Complete
+- [ ] Confetti particles animate
+- [ ] Trophy glows/pulses
+- [ ] Card slides in smoothly
+- [ ] All animations synchronized
+
+**FPS Test**: _____ (must be 60)
+**Issues**: _______________________
+
+#### Community Interactions
+- [ ] Like animation (scale)
+- [ ] Post cards fade in
+- [ ] Scroll performance
+- [ ] Keyboard animation
+
+**FPS Test**: _____ (must be 60)
+**Issues**: _______________________
+
+#### Tab Transitions
+- [ ] Tab switch < 200ms
+- [ ] No white flash
+- [ ] Content preserves state
+- [ ] Smooth animation
+
+**Time Test**: _____ ms
+**Issues**: _______________________
+
+---
+
+## GENERAL UI/UX CHECKLIST
+
+### Typography
+- [ ] All headings correct size/weight
+- [ ] Body text readable
+- [ ] Captions appropriate size
+- [ ] Line heights match Figma
+- [ ] Text alignment correct
+- [ ] Color contrast sufficient
+
+**Issues**: _______________________
+
+### Colors
+- [ ] Primary red exact match (#FF4444)
+- [ ] Background dark matches
+- [ ] All gradients accurate
+- [ ] Text colors correct
+- [ ] Success green matches
+- [ ] All colors from theme
+
+**Issues**: _______________________
+
+### Spacing
+- [ ] Screen padding consistent (20px)
+- [ ] Card padding correct (16px)
+- [ ] Element gaps appropriate (12px)
+- [ ] All spacing from theme constants
+
+**Issues**: _______________________
+
+### Buttons
+- [ ] Height correct (56px)
+- [ ] Border radius matches (12px)
+- [ ] Press animation (scale/opacity)
+- [ ] Loading states
+- [ ] Disabled states
+- [ ] Shadow/elevation
+
+**Issues**: _______________________
+
+### Icons
+- [ ] All icons from correct library
+- [ ] Correct sizes
+- [ ] Proper alignment
+- [ ] Color matches context
+
+**Issues**: _______________________
+
+### Images
+- [ ] High quality (not pixelated)
+- [ ] Correct aspect ratios
+- [ ] Loading states
+- [ ] Caching enabled
+- [ ] Progressive loading
+
+**Issues**: _______________________
+
+---
+
+## PERFORMANCE CHECKLIST
+
+### App Launch
+- [ ] Launches in < 2s
+- [ ] No white flash
+- [ ] Smooth splash transition
+
+**Time**: _____ seconds
+
+### Navigation
+- [ ] Screen transitions < 200ms
+- [ ] No jank
+- [ ] Preserves state
+- [ ] Back navigation smooth
+
+**Time per transition**: _____ ms
+
+### Lists
+- [ ] Smooth scrolling (60fps)
+- [ ] Virtualization enabled
+- [ ] No blank items
+- [ ] Pull to refresh works
+
+**FPS**: _____
+
+### API Calls
+- [ ] Loading states shown
+- [ ] Error states handled
+- [ ] Optimistic updates
+- [ ] Response time acceptable
+
+**Avg time**: _____ ms
+
+### Memory
+- [ ] No memory leaks
+- [ ] Images release properly
+- [ ] Total usage < 150MB
+
+**Usage**: _____ MB
+
+---
+
+## DEVICE TESTING
+
+### iPhone Testing
+- [ ] iPhone 13/14/15 (standard)
+- [ ] iPhone 13/14/15 Pro Max (large)
+- [ ] iPhone SE (small)
+- [ ] Safe area handling
+- [ ] Notch handling
+
+### Android Testing
+- [ ] Pixel/Samsung (if applicable)
+- [ ] Different screen sizes
+- [ ] Navigation bar handling
+
+### Orientations
+- [ ] Portrait (primary)
+- [ ] Landscape locked (if needed)
+
+---
+
+## ACCESSIBILITY
+
+- [ ] Font scaling works
+- [ ] Screen reader labels
+- [ ] Color contrast WCAG AA
+- [ ] Touch targets ≥ 44x44
+- [ ] Reduced motion support
+
+---
+
+## FINAL REVIEW
+
+### Before Sprint Demo
+- [ ] All screens pixel-perfect
+- [ ] All animations 60fps
+- [ ] No console errors
+- [ ] No TypeScript errors
+- [ ] Git committed and pushed
+- [ ] Screenshots taken
+- [ ] Video recording prepared
+
+### Before App Store
+- [ ] All checklists complete
+- [ ] Founders approved
+- [ ] Testing complete
+- [ ] Performance targets met
+- [ ] No critical bugs
+
+---
+
+## Notes Section
+
+Use this space for:
+- Design decisions
+- Deviations from Figma (with justification)
+- Performance optimizations
+- Known issues to fix
+
+_____________________________________________
+_____________________________________________
+_____________________________________________
+_____________________________________________
+_____________________________________________

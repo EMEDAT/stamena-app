@@ -1,0 +1,711 @@
+// # Stamena - Quick Start Guide
+
+// ## Start TODAY (Day 1)
+
+// ### Morning Setup (2 hours)
+// ```bash
+// # 1. Initialize project
+// npx create-expo-app stamena --template expo-template-blank-typescript
+// cd stamena
+
+// # 2. Install core dependencies
+// npm install @react-navigation/native @react-navigation/stack @react-navigation/bottom-tabs
+// npm install react-native-screens react-native-safe-area-context
+// npm install react-native-reanimated react-native-gesture-handler
+// npm install react-native-svg expo-linear-gradient
+// npm install @supabase/supabase-js @react-native-async-storage/async-storage
+// npm install @tanstack/react-query
+
+// # 3. Dev dependencies
+// npm install --save-dev @types/react @types/react-native
+// npm install --save-dev prettier eslint
+
+// # 4. Initialize git
+// git init
+// git add .
+// git commit -m "feat: initial project setup"
+// ```
+
+// ### Afternoon Build (4 hours)
+
+// #### 1. Create folder structure (15 min)
+// ```bash
+// mkdir -p src/screens/{onboarding,plan,community,coach,profile}
+// mkdir -p src/components/{common,animations,charts,exercise}
+// mkdir -p src/navigation
+// mkdir -p src/services
+// mkdir -p src/hooks
+// mkdir -p src/utils
+// mkdir -p src/constants
+// mkdir -p src/types
+// mkdir -p assets/{images,icons}
+// ```
+
+// #### 2. Create theme constants (30 min)
+// Create `src/constants/theme.ts`:
+// ```typescript
+// export const Colors = {
+//   // Primary
+//   primaryRed: '#FF4444',
+  
+//   // Backgrounds
+//   backgroundDark: '#0A0A0A',
+//   backgroundSecondary: '#1A1A1A',
+  
+//   // Text
+//   textPrimary: '#FFFFFF',
+//   textSecondary: '#999999',
+  
+//   // Progress
+//   progressGreen: '#4CAF50',
+//   progressRed: '#FF0000',
+//   progressYellow: '#FFFF00',
+  
+//   // Gradients
+//   gradientPurple: '#6B46C1',
+//   gradientRed: '#DC2626',
+//   gradientBlue: '#2563EB',
+// };
+
+// export const Typography = {
+//   heading1: {
+//     fontFamily: 'System',
+//     fontSize: 32,
+//     fontWeight: '700' as const,
+//     lineHeight: 40,
+//   },
+//   heading2: {
+//     fontFamily: 'System',
+//     fontSize: 24,
+//     fontWeight: '700' as const,
+//     lineHeight: 32,
+//   },
+//   body: {
+//     fontFamily: 'System',
+//     fontSize: 16,
+//     fontWeight: '400' as const,
+//     lineHeight: 24,
+//   },
+//   caption: {
+//     fontFamily: 'System',
+//     fontSize: 14,
+//     fontWeight: '400' as const,
+//     lineHeight: 20,
+//   },
+// };
+
+// export const Spacing = {
+//   xs: 4,
+//   sm: 8,
+//   md: 12,
+//   lg: 16,
+//   xl: 20,
+//   xxl: 24,
+//   xxxl: 32,
+// };
+
+// export const Shadows = {
+//   small: {
+//     shadowColor: '#000',
+//     shadowOffset: { width: 0, height: 2 },
+//     shadowOpacity: 0.25,
+//     shadowRadius: 3.84,
+//     elevation: 5,
+//   },
+//   medium: {
+//     shadowColor: '#000',
+//     shadowOffset: { width: 0, height: 4 },
+//     shadowOpacity: 0.30,
+//     shadowRadius: 4.65,
+//     elevation: 8,
+//   },
+// };
+// ```
+
+// #### 3. Build Button component (30 min)
+// Create `src/components/common/Button.tsx`:
+// ```typescript
+// import React, { memo } from 'react';
+// import {
+//   TouchableOpacity,
+//   Text,
+//   StyleSheet,
+//   ActivityIndicator,
+//   ViewStyle,
+//   TextStyle,
+// } from 'react-native';
+// import { Colors, Typography, Spacing, Shadows } from '@/constants/theme';
+
+// interface ButtonProps {
+//   title: string;
+//   onPress: () => void;
+//   variant?: 'primary' | 'secondary' | 'text';
+//   disabled?: boolean;
+//   loading?: boolean;
+//   style?: ViewStyle;
+//   textStyle?: TextStyle;
+// }
+
+// export const Button = memo<ButtonProps>(({
+//   title,
+//   onPress,
+//   variant = 'primary',
+//   disabled = false,
+//   loading = false,
+//   style,
+//   textStyle,
+// }) => {
+//   const containerStyle = [
+//     styles.base,
+//     variant === 'primary' && styles.primary,
+//     variant === 'secondary' && styles.secondary,
+//     variant === 'text' && styles.text,
+//     disabled && styles.disabled,
+//     style,
+//   ];
+
+//   const labelStyle = [
+//     styles.baseText,
+//     variant === 'primary' && styles.primaryText,
+//     variant === 'secondary' && styles.secondaryText,
+//     variant === 'text' && styles.textText,
+//     disabled && styles.disabledText,
+//     textStyle,
+//   ];
+
+//   return (
+//     <TouchableOpacity
+//       style={containerStyle}
+//       onPress={onPress}
+//       disabled={disabled || loading}
+//       activeOpacity={0.7}
+//     >
+//       {loading ? (
+//         <ActivityIndicator color={variant === 'primary' ? Colors.textPrimary : Colors.primaryRed} />
+//       ) : (
+//         <Text style={labelStyle}>{title}</Text>
+//       )}
+//     </TouchableOpacity>
+//   );
+// });
+
+// const styles = StyleSheet.create({
+//   base: {
+//     height: 56,
+//     borderRadius: 12,
+//     alignItems: 'center',
+//     justifyContent: 'center',
+//     paddingHorizontal: Spacing.xl,
+//   },
+//   primary: {
+//     backgroundColor: Colors.primaryRed,
+//     ...Shadows.small,
+//   },
+//   secondary: {
+//     backgroundColor: 'transparent',
+//     borderWidth: 1,
+//     borderColor: Colors.primaryRed,
+//   },
+//   text: {
+//     backgroundColor: 'transparent',
+//   },
+//   disabled: {
+//     opacity: 0.5,
+//   },
+//   baseText: {
+//     ...Typography.body,
+//     fontWeight: '600',
+//   },
+//   primaryText: {
+//     color: Colors.textPrimary,
+//   },
+//   secondaryText: {
+//     color: Colors.primaryRed,
+//   },
+//   textText: {
+//     color: Colors.primaryRed,
+//   },
+//   disabledText: {
+//     color: Colors.textSecondary,
+//   },
+// });
+// ```
+
+// #### 4. Setup navigation (1 hour)
+// Create `src/navigation/RootNavigator.tsx`:
+// ```typescript
+// import React from 'react';
+// import { NavigationContainer } from '@react-navigation/native';
+// import { createStackNavigator } from '@react-navigation/stack';
+// import { OnboardingNavigator } from './OnboardingNavigator';
+// import { MainTabNavigator } from './MainTabNavigator';
+
+// const Stack = createStackNavigator();
+
+// export const RootNavigator = () => {
+//   // TODO: Check if user completed onboarding
+//   const isOnboarded = false;
+
+//   return (
+//     <NavigationContainer>
+//       <Stack.Navigator screenOptions={{ headerShown: false }}>
+//         {!isOnboarded ? (
+//           <Stack.Screen name="Onboarding" component={OnboardingNavigator} />
+//         ) : (
+//           <Stack.Screen name="Main" component={MainTabNavigator} />
+//         )}
+//       </Stack.Navigator>
+//     </NavigationContainer>
+//   );
+// };
+// ```
+
+// Create `src/navigation/OnboardingNavigator.tsx`:
+// ```typescript
+// import React from 'react';
+// import { createStackNavigator } from '@react-navigation/stack';
+// // TODO: Import screens as you build them
+
+// const Stack = createStackNavigator();
+
+// export const OnboardingNavigator = () => {
+//   return (
+//     <Stack.Navigator screenOptions={{ headerShown: false }}>
+//       {/* TODO: Add screens */}
+//     </Stack.Navigator>
+//   );
+// };
+// ```
+
+// Create `src/navigation/MainTabNavigator.tsx`:
+// ```typescript
+// import React from 'react';
+// import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+// // TODO: Import tab screens as you build them
+
+// const Tab = createBottomTabNavigator();
+
+// export const MainTabNavigator = () => {
+//   return (
+//     <Tab.Navigator
+//       screenOptions={{
+//         headerShown: false,
+//         tabBarStyle: {
+//           backgroundColor: '#1A1A1A',
+//           borderTopColor: '#333',
+//         },
+//         tabBarActiveTintColor: '#FF4444',
+//         tabBarInactiveTintColor: '#999',
+//       }}
+//     >
+//       {/* TODO: Add tabs */}
+//     </Tab.Navigator>
+//   );
+// };
+// ```
+
+// #### 5. Update App.tsx (15 min)
+// ```typescript
+// import React from 'react';
+// import { StatusBar } from 'expo-status-bar';
+// import { RootNavigator } from './src/navigation/RootNavigator';
+
+// export default function App() {
+//   return (
+//     <>
+//       <StatusBar style="light" />
+//       <RootNavigator />
+//     </>
+//   );
+// }
+// ```
+
+// #### 6. Create first screen (1 hour)
+// Create `src/screens/onboarding/EducationalSlidesScreen.tsx`:
+// ```typescript
+// import React, { useRef, useState } from 'react';
+// import {
+//   View,
+//   Text,
+//   FlatList,
+//   StyleSheet,
+//   Dimensions,
+//   TouchableOpacity,
+// } from 'react-native';
+// import { LinearGradient } from 'expo-linear-gradient';
+// import { Button } from '@/components/common/Button';
+// import { Colors, Typography, Spacing } from '@/constants/theme';
+
+// const { width: SCREEN_WIDTH } = Dimensions.get('window');
+
+// interface Slide {
+//   id: string;
+//   title: string;
+//   description: string;
+//   colors: string[];
+// }
+
+// const SLIDES: Slide[] = [
+//   {
+//     id: '1',
+//     title: 'Welcome to Stamena',
+//     description: 'Over 50,000 men have used Stamena to last longer, improve their erections and user-interaction.',
+//     colors: ['#6B46C1', '#DC2626'],
+//   },
+//   {
+//     id: '2',
+//     title: 'The most overlooked muscle in your body',
+//     description: 'Your pelvic floor plays a major role in sex. It controls climax, erection strength, and staying power – but in today\'s world of chronic sitting, most men ignore it, letting them weaken over time.',
+//     colors: ['#DC2626', '#6B46C1'],
+//   },
+//   {
+//     id: '3',
+//     title: 'Rewire your body and brain',
+//     description: 'Just like other muscles, your pelvic floor needs training. Clinically-backed routines help strengthen the muscle\'s and surrounding area\'s.',
+//     colors: ['#6B46C1', '#2563EB'],
+//   },
+//   {
+//     id: '4',
+//     title: 'Stay motivated',
+//     description: 'Gaining stamina can be challenging. Your quick daily exercises are structured to keep you motivated – all by training a forgotten muscle group.',
+//     colors: ['#2563EB', '#DC2626'],
+//   },
+// ];
+
+// export const EducationalSlidesScreen = () => {
+//   const flatListRef = useRef<FlatList>(null);
+//   const [currentIndex, setCurrentIndex] = useState(0);
+
+//   const handleNext = () => {
+//     if (currentIndex < SLIDES.length - 1) {
+//       flatListRef.current?.scrollToIndex({
+//         index: currentIndex + 1,
+//         animated: true,
+//       });
+//     } else {
+//       // TODO: Navigate to next screen
+//       console.log('Go to personalization');
+//     }
+//   };
+
+//   const handleSkip = () => {
+//     // TODO: Navigate to next screen
+//     console.log('Skip onboarding');
+//   };
+
+//   const renderSlide = ({ item }: { item: Slide }) => (
+//     <LinearGradient
+//       colors={item.colors}
+//       style={styles.slide}
+//     >
+//       <View style={styles.content}>
+//         <Text style={styles.title}>{item.title}</Text>
+//         <Text style={styles.description}>{item.description}</Text>
+//       </View>
+//     </LinearGradient>
+//   );
+
+//   const renderDots = () => (
+//     <View style={styles.dotsContainer}>
+//       {SLIDES.map((_, index) => (
+//         <View
+//           key={index}
+//           style={[
+//             styles.dot,
+//             index === currentIndex && styles.activeDot,
+//           ]}
+//         />
+//       ))}
+//     </View>
+//   );
+
+//   return (
+//     <View style={styles.container}>
+//       <TouchableOpacity style={styles.skipButton} onPress={handleSkip}>
+//         <Text style={styles.skipText}>Skip</Text>
+//       </TouchableOpacity>
+
+//       <FlatList
+//         ref={flatListRef}
+//         data={SLIDES}
+//         renderItem={renderSlide}
+//         horizontal
+//         pagingEnabled
+//         showsHorizontalScrollIndicator={false}
+//         onMomentumScrollEnd={(e) => {
+//           const index = Math.round(e.nativeEvent.contentOffset.x / SCREEN_WIDTH);
+//           setCurrentIndex(index);
+//         }}
+//         keyExtractor={(item) => item.id}
+//       />
+
+//       <View style={styles.footer}>
+//         {renderDots()}
+//         <Button
+//           title="Next"
+//           onPress={handleNext}
+//           style={styles.nextButton}
+//         />
+//       </View>
+//     </View>
+//   );
+// };
+
+// const styles = StyleSheet.create({
+//   container: {
+//     flex: 1,
+//     backgroundColor: Colors.backgroundDark,
+//   },
+//   slide: {
+//     width: SCREEN_WIDTH,
+//     flex: 1,
+//     justifyContent: 'center',
+//     alignItems: 'center',
+//   },
+//   content: {
+//     paddingHorizontal: Spacing.xl,
+//     alignItems: 'center',
+//   },
+//   title: {
+//     ...Typography.heading1,
+//     color: Colors.textPrimary,
+//     textAlign: 'center',
+//     marginBottom: Spacing.lg,
+//   },
+//   description: {
+//     ...Typography.body,
+//     color: Colors.textPrimary,
+//     textAlign: 'center',
+//     opacity: 0.9,
+//   },
+//   skipButton: {
+//     position: 'absolute',
+//     top: 60,
+//     right: 20,
+//     zIndex: 10,
+//     padding: Spacing.md,
+//   },
+//   skipText: {
+//     ...Typography.body,
+//     color: Colors.textPrimary,
+//   },
+//   footer: {
+//     position: 'absolute',
+//     bottom: 60,
+//     left: 0,
+//     right: 0,
+//     paddingHorizontal: Spacing.xl,
+//   },
+//   dotsContainer: {
+//     flexDirection: 'row',
+//     justifyContent: 'center',
+//     marginBottom: Spacing.xl,
+//   },
+//   dot: {
+//     width: 8,
+//     height: 8,
+//     borderRadius: 4,
+//     backgroundColor: Colors.textSecondary,
+//     marginHorizontal: 4,
+//   },
+//   activeDot: {
+//     backgroundColor: Colors.primaryRed,
+//     width: 24,
+//   },
+//   nextButton: {
+//     width: '100%',
+//   },
+// });
+// ```
+
+// #### 7. Wire up navigation (15 min)
+// Update `src/navigation/OnboardingNavigator.tsx`:
+// ```typescript
+// // import React from 'react';
+// // import { createStackNavigator } from '@react-navigation/stack';
+// // import { EducationalSlidesScreen } from '@/screens/onboarding/EducationalSlidesScreen';
+
+// // const Stack = createStackNavigator();
+
+// // export const OnboardingNavigator = () => {
+// //   return (
+// //     <Stack.Navigator screenOptions={{ headerShown: false }}>
+// //       <Stack.Screen name="EducationalSlides" component={EducationalSlidesScreen} />
+// //     </Stack.Navigator>
+// //   );
+// // };
+// ```
+
+// #### 8. Test (30 min)
+// ```bash
+// # Run on iOS
+// npx expo start --ios
+
+// # Or Android
+// npx expo start --android
+
+// # Or scan QR code in Expo Go app
+// npx expo start
+// ```
+
+// **Test checklist**:
+// - [ ] App launches
+// - [ ] Can swipe between slides
+// - [ ] Dots update correctly
+// - [ ] Next button works
+// - [ ] Skip button (logs for now)
+
+// #### 9. Commit progress
+// ```bash
+// git add .
+// git commit -m "feat: educational slides screen with navigation"
+// git push origin main
+// ```
+
+// ---
+
+// ## Tomorrow (Day 2)
+
+// ### Goals
+// 1. Add medical imagery to slides
+// 2. Create personalization questions screen
+// 3. Start animated graph component
+
+// ### Tasks
+// 1. Export images from Figma (educational slides)
+// 2. Build question component
+// 3. Implement multiple choice questions
+// 4. Start SVG graph path
+
+// ---
+
+// ## This Week Goals (Week 1)
+
+// ### By Friday
+// - ✅ Complete all educational slides (with images)
+// - ✅ Complete personalization questions
+// - ✅ Build animated graph (at least basic version)
+// - ✅ Set up Supabase project
+// - ✅ Basic auth flow
+
+// ---
+
+// ## Tips for Success
+
+// ### Development
+// 1. **Test on real device** - Animations look different on device vs simulator
+// 2. **Commit often** - Small commits every feature
+// 3. **Match Figma exactly** - Use Figma's inspect panel for exact values
+// 4. **60fps or bust** - If animation stutters, use Reanimated
+
+// ### Figma Workflow
+// 1. Open Figma design
+// 2. Click on element
+// 3. Check Inspect panel for:
+//    - Exact colors (hex codes)
+//    - Font sizes
+//    - Spacing values
+//    - Border radius
+// 4. Implement pixel-perfect
+
+// ### Animation Workflow
+// 1. Identify animation in Figma
+// 2. Break down into steps
+// 3. Use Reanimated for performance
+// 4. Test on device
+// 5. Adjust timing/easing
+// 6. Profile FPS
+
+// ### Daily Routine
+// - **Morning**: Pick 1-2 screens to build
+// - **Afternoon**: Implement + test on device
+// - **Evening**: Review Figma comparison, fix discrepancies
+
+// ---
+
+// ## Quick Commands Reference
+
+// ```bash
+// # Start dev server
+// npx expo start
+
+// # Run on iOS simulator
+// npx expo start --ios
+
+// # Run on Android emulator
+// npx expo start --android
+
+// # Clear cache (if issues)
+// npx expo start --clear
+
+// # Install new package
+// npm install package-name
+
+// # TypeScript check
+// npx tsc --noEmit
+
+// # Lint
+// npx eslint .
+
+// # Format
+// npx prettier --write .
+// ```
+
+// ---
+
+// ## First Sprint Checklist
+
+// ### Day 1 ✅
+// - [ ] Project setup
+// - [ ] Theme constants
+// - [ ] Button component
+// - [ ] Navigation structure
+// - [ ] First screen (Educational slides)
+
+// ### Day 2
+// - [ ] Add images to slides
+// - [ ] Personalization questions screen
+// - [ ] Multiple choice component
+
+// ### Day 3
+// - [ ] Animated graph component
+// - [ ] SVG path drawing
+// - [ ] Moving dot animation
+
+// ### Day 4
+// - [ ] Supabase setup
+// - [ ] Database schema
+// - [ ] Auth service
+
+// ### Day 5
+// - [ ] Test full onboarding flow
+// - [ ] Fix bugs
+// - [ ] Git push
+// - [ ] Sprint review
+
+// ---
+
+// ## Need Help?
+
+// ### Animation not smooth?
+// - Use `react-native-reanimated` instead of `Animated`
+// - Set `useNativeDriver: true`
+// - Avoid layout calculations in animations
+
+// ### Component not matching Figma?
+// - Check Inspect panel for exact values
+// - Verify color hex codes
+// - Measure spacing carefully
+// - Compare screenshots side-by-side
+
+// ### Supabase issues?
+// - Check RLS policies
+// - Verify table schema
+// - Test with Postman/Insomnia first
+// - Check network logs
+
+// ---
+
+// You're ready to start! Open your code editor and begin with the project setup. Focus on building clean, modular components that exactly match Figma. Take your time on animations - they're what makes the app feel premium.
+
+// **Let's build something incredible!** 💪🚀
