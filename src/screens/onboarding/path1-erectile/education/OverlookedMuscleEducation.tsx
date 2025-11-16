@@ -25,7 +25,7 @@ export default function OverlookedMuscleEducation() {
         <StatusBar style="light" />
         {/* Background Image */}
         <ImageBackground
-          source={require('../../../../../assets/images/backgrounds/path-1/educational-slide/prototype3.png')}
+          source={require('../../../../../assets/images/onboarding/backgrounds/path-1/educational-slide/prototype3.png')}
           style={styles.backgroundImage}
           resizeMode="cover"
         >
@@ -44,7 +44,7 @@ export default function OverlookedMuscleEducation() {
             {/* Overlooked Muscle Illustration Image */}
             <View style={styles.illustrationContainer}>
               <Image
-                source={require('../../../../../assets/images/illustrations/path-1/educational-slide/mask-group7.png')}
+                source={require('../../../../../assets/images/onboarding/illustrations/path-1/educational-slide/mask-group7.png')}
                 style={styles.illustrationImage}
                 resizeMode="cover"
               />

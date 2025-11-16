@@ -25,7 +25,7 @@ export default function FrustrationEducation() {
         <StatusBar style="light" />
         {/* Background Image */}
         <ImageBackground
-          source={require('../../../../../assets/images/backgrounds/path-1/educational-slide/prototype.png')}
+          source={require('../../../../../assets/images/onboarding/backgrounds/path-1/educational-slide/prototype.png')}
           style={styles.backgroundImage}
           resizeMode="cover"
         >
@@ -44,7 +44,7 @@ export default function FrustrationEducation() {
             {/* Frustration Illustration Image */}
             <View style={styles.illustrationContainer}>
               <Image
-                source={require('../../../../../assets/images/illustrations/path-1/educational-slide/mask-group4.png')}
+                source={require('../../../../../assets/images/onboarding/illustrations/path-1/educational-slide/mask-group4.png')}
                 style={styles.illustrationImage}
                 resizeMode="cover"
               />

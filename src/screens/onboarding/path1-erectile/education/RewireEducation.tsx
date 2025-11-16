@@ -25,7 +25,7 @@ export default function RewireEducation() {
         <StatusBar style="light" />
         {/* Background Image */}
         <ImageBackground
-          source={require('../../../../../assets/images/backgrounds/path-1/educational-slide/prototype3.png')}
+          source={require('../../../../../assets/images/onboarding/backgrounds/path-1/educational-slide/prototype3.png')}
           style={styles.backgroundImage}
           resizeMode="cover"
         >
@@ -47,7 +47,7 @@ export default function RewireEducation() {
             {/* Brain Connection Illustration Image */}
             <View style={styles.illustrationContainer}>
               <Image
-                source={require('../../../../../assets/images/illustrations/path-1/educational-slide/mask-group8.png')}
+                source={require('../../../../../assets/images/onboarding/illustrations/path-1/educational-slide/mask-group8.png')}
                 style={styles.illustrationImage}
                 resizeMode="cover"
               />

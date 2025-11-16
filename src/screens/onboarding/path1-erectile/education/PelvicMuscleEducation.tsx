@@ -25,7 +25,7 @@ export default function PelvicMuscleEducation() {
         <StatusBar style="light" />
         {/* Background Image */}
         <ImageBackground
-          source={require('../../../../../assets/images/backgrounds/path-1/educational-slide/prototype.png')}
+          source={require('../../../../../assets/images/onboarding/backgrounds/path-1/educational-slide/prototype.png')}
           style={styles.backgroundImage}
           resizeMode="cover"
         >
@@ -45,7 +45,7 @@ export default function PelvicMuscleEducation() {
             {/* Pelvic Anatomy Image */}
             <View style={styles.anatomyContainer}>
               <Image
-                source={require('../../../../../assets/images/illustrations/path-1/educational-slide/mask-group.png')}
+                source={require('../../../../../assets/images/onboarding/illustrations/path-1/educational-slide/mask-group.png')}
                 style={styles.anatomyImage}
                 resizeMode="cover"
               />

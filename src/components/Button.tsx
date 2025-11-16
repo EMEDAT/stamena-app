@@ -75,7 +75,7 @@ export const Button: React.FC = () => {
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
         onPress={() => {
-          router.push('/pelvic-muscle-education');
+          router.push('/onboarding/path1-erectile/education/pelvic-muscle-education');
         }}
       >
         <Animated.View style={[styles.glow, glowAnimatedStyle]} />

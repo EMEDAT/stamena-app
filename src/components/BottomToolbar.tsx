@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
   container: {
     alignSelf: 'center',
     marginTop: 32,
-    marginBottom: 0,
+    marginBottom: -1,
     marginHorizontal: -6,
     paddingTop: 13,
     paddingBottom: 50,
